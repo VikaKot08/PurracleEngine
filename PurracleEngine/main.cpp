@@ -57,6 +57,7 @@ int main()
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
+        glfwTerminate();
         return -1;
     }
 
@@ -141,9 +142,10 @@ int main()
     {
         processInput(window);
 
-        glClearColor(0.58f, 0.53f, 0.73f, 1.0f);
+
         glClear(GL_COLOR_BUFFER_BIT);
 
+        glClearColor(0.58f, 0.53f, 0.73f, 1.0f);
 
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
