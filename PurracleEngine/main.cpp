@@ -55,6 +55,7 @@ int main()
         glfwTerminate();
         return -1;
     }
+
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
@@ -68,6 +69,32 @@ int main()
     //glViewport(0, 0, 800, 600);
 
     //glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;    
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+
+    ImGui::StyleColorsClassic();
+    ImGuiStyle& style = ImGui::GetStyle();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        style.WindowRounding = 1.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplOpenGL3_Init();
+
+
 
 
 
@@ -146,6 +173,13 @@ int main()
     {
         processInput(window);
 
+        glfwPollEvents();
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        ImGui::ShowDemoWindow(); // Show demo window! :)
+
 
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -154,16 +188,32 @@ int main()
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            GLFWwindow* backup_current_context = glfwGetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            glfwMakeContextCurrent(backup_current_context);
+        }
 
         glfwSwapBuffers(window);
-        glfwPollEvents();
+        //glfwPollEvents();
     }
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
+
+    glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }
