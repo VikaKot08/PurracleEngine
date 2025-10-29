@@ -1,3 +1,6 @@
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -54,6 +57,16 @@ int main()
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
+    }
+
+    GLFWimage images[1];
+    images[0].pixels = stbi_load("Assets/Purracle.png", &images[0].width, &images[0].height, nullptr, 4);
+    if (images[0].pixels) {
+        glfwSetWindowIcon(window, 1, images);
+        stbi_image_free(images[0].pixels);
+    }
+    else {
+        std::cerr << "Failed to load icon!\n";
     }
 
     glfwMakeContextCurrent(window);
