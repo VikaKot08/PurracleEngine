@@ -317,6 +317,92 @@ void ImGui::StyleColorsClassic(ImGuiStyle* dst)
     colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 }
 
+void ImGui::StyleColorsPurracle(ImGuiStyle* dst)
+{
+    ImGuiStyle* style = dst ? dst : &ImGui::GetStyle();
+    ImVec4* colors = style->Colors;
+
+    // --- Base palette ---
+    ImVec4 beige = ImVec4(0.94f, 0.82f, 0.75f, 1.00f); // #f0d1be
+    ImVec4 lavender = ImVec4(0.31f, 0.29f, 0.44f, 1.00f); // #504a70 (dark purple)
+    ImVec4 cream = ImVec4(0.96f, 0.92f, 0.89f, 1.00f); // #f6eae3
+    ImVec4 lavenderLight = ImVec4(0.45f, 0.42f, 0.60f, 1.00f);
+    ImVec4 transparent = ImVec4(0, 0, 0, 0);
+
+    // --- Core colors ---
+    colors[ImGuiCol_Text] = lavender;
+    colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.48f, 0.63f, 1.00f);
+    colors[ImGuiCol_WindowBg] = cream;
+    colors[ImGuiCol_ChildBg] = ImVec4(0.97f, 0.94f, 0.91f, 1.00f);
+    colors[ImGuiCol_PopupBg] = cream;
+    colors[ImGuiCol_Border] = ImVec4(0.75f, 0.70f, 0.65f, 0.50f);
+    colors[ImGuiCol_BorderShadow] = transparent;
+
+    // --- Frames ---
+    colors[ImGuiCol_FrameBg] = ImVec4(0.93f, 0.86f, 0.80f, 1.00f);
+    colors[ImGuiCol_FrameBgHovered] = ImVec4(0.96f, 0.89f, 0.84f, 1.00f);
+    colors[ImGuiCol_FrameBgActive] = beige;
+
+    // --- Titles ---
+    colors[ImGuiCol_TitleBg] = lavender;
+    colors[ImGuiCol_TitleBgActive] = lavender;
+    colors[ImGuiCol_TitleBgCollapsed] = lavender;
+
+    // --- Menus ---
+    colors[ImGuiCol_MenuBarBg] = ImVec4(0.92f, 0.88f, 0.85f, 1.00f);
+
+    // --- Scrollbar ---
+    colors[ImGuiCol_ScrollbarBg] = cream;
+    colors[ImGuiCol_ScrollbarGrab] = beige;
+    colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.95f, 0.85f, 0.78f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.98f, 0.89f, 0.82f, 1.00f);
+
+    // --- Buttons ---
+    colors[ImGuiCol_Button] = beige;
+    colors[ImGuiCol_ButtonHovered] = ImVec4(0.95f, 0.85f, 0.78f, 1.00f);
+    colors[ImGuiCol_ButtonActive] = ImVec4(0.98f, 0.89f, 0.82f, 1.00f);
+
+    // --- Headers (for trees, tabs, etc.) ---
+    colors[ImGuiCol_Header] = beige;
+    colors[ImGuiCol_HeaderHovered] = ImVec4(0.95f, 0.85f, 0.78f, 1.00f);
+    colors[ImGuiCol_HeaderActive] = ImVec4(0.98f, 0.89f, 0.82f, 1.00f);
+
+    // --- Separators ---
+    colors[ImGuiCol_Separator] = ImVec4(0.80f, 0.75f, 0.70f, 0.8f);
+    colors[ImGuiCol_SeparatorHovered] = ImVec4(0.50f, 0.47f, 0.65f, 1.00f);
+    colors[ImGuiCol_SeparatorActive] = ImVec4(0.37f, 0.34f, 0.52f, 1.00f);
+
+    // --- Checkboxes, sliders, etc. ---
+    colors[ImGuiCol_CheckMark] = lavender;
+    colors[ImGuiCol_SliderGrab] = lavender;
+    colors[ImGuiCol_SliderGrabActive] = lavenderLight;
+
+    // --- Tabs ---
+    colors[ImGuiCol_Tab] = beige;
+    colors[ImGuiCol_TabHovered] = ImVec4(0.96f, 0.89f, 0.83f, 1.00f);
+    colors[ImGuiCol_TabActive] = ImVec4(0.92f, 0.80f, 0.72f, 1.00f);
+    colors[ImGuiCol_TabUnfocused] = ImVec4(0.85f, 0.75f, 0.70f, 1.00f);
+    colors[ImGuiCol_TabUnfocusedActive] = beige;
+
+    // --- Tables and selections ---
+    colors[ImGuiCol_TableHeaderBg] = beige;
+    colors[ImGuiCol_TableBorderStrong] = ImVec4(0.70f, 0.65f, 0.60f, 1.00f);
+    colors[ImGuiCol_TableBorderLight] = ImVec4(0.85f, 0.80f, 0.75f, 1.00f);
+    colors[ImGuiCol_TableRowBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.00f);
+    colors[ImGuiCol_TableRowBgAlt] = ImVec4(1.00f, 1.00f, 1.00f, 0.05f);
+
+    // --- Highlights ---
+    colors[ImGuiCol_TextLink] = lavender;
+    colors[ImGuiCol_TextSelectedBg] = ImVec4(0.80f, 0.75f, 0.95f, 0.35f);
+    colors[ImGuiCol_DragDropTarget] = ImVec4(1.00f, 0.90f, 0.50f, 0.90f);
+    colors[ImGuiCol_ResizeGrip] = beige;
+    colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.95f, 0.85f, 0.78f, 1.00f);
+    colors[ImGuiCol_ResizeGripActive] = ImVec4(0.98f, 0.89f, 0.82f, 1.00f);
+
+    // --- Modal windows ---
+    colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.25f, 0.35f);
+}
+
 // Those light colors are better suited with a thicker font than the default one + FrameBorder
 void ImGui::StyleColorsLight(ImGuiStyle* dst)
 {
