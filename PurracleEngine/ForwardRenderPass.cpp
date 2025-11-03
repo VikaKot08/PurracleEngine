@@ -2,7 +2,7 @@
 
 ForwardRenderPass::ForwardRenderPass()
 {
-	myShader = new Shader("Assets/Shaders/VertexShader.glsl", "Assets/Shaders/FragmentShader.glsl");
+	myShader = new Shader("Assets/Shaders/CubeVertex.glsl", "Assets/Shaders/CubeFragment.glsl");
 }
 
 void ForwardRenderPass::Execute(Scene& aScene) 
@@ -11,7 +11,7 @@ void ForwardRenderPass::Execute(Scene& aScene)
 
 	for(auto& object : aScene.objects)
 	{
-		object->Render();
+		object->Render(myShader);
 	}
 
 	myShader->EndUse();

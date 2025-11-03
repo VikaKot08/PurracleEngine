@@ -6,7 +6,7 @@ public:
     Triangle();
     ~Triangle() override;
 
-    void Render() override;
+    void Render(Shader* myShader) override;
 
 private:
     unsigned int VBO;

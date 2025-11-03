@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Triangle.h"
+#include "Cube.h"
 #include "Shader.h"
 
 #include "EngineContext.h"
@@ -63,7 +64,8 @@ int main()
     EngineContext* context = new EngineContext(scene, renderer);
     
     Triangle* triangle = new Triangle();
-    scene->AddRenderable(triangle);
+    Cube* cube = new Cube();
+    scene->AddRenderable(cube);
 
     while (!glfwWindowShouldClose(window))
     {

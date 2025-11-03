@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <glm/glm.hpp>
 
 class Shader
 {
@@ -14,5 +15,6 @@ public:
 	void Use();
 	void EndUse();
 	~Shader();
+	void SetMatrix4(glm::mat4 aMatrix, const std::string& aName);
 };
 

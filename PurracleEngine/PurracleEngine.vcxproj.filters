@@ -84,6 +84,9 @@
     <ClCompile Include="GuiManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imgui_impl_glfw.h">
@@ -149,6 +152,9 @@
     <ClInclude Include="GuiManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Cube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PurracleEngine.rc">
@@ -165,6 +171,12 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="Assets\Shaders\VertexShader.glsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Assets\Shaders\CubeVertex.glsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Assets\Shaders\CubeFragment.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

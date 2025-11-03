@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iostream>
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 Shader::Shader(const char* aVertexPath, const char* aFragmentPath) 
 {
@@ -119,4 +120,9 @@ void Shader::EndUse()
 Shader::~Shader() 
 {
 	glDeleteProgram(myShaderProgram);
+}
+
+void Shader::SetMatrix4(glm::mat4 aMatrix, const std::string& aName)
+{
+	glUniformMatrix4fv(glGetUniformLocation(myShaderProgram, aName.c_str()), 1, GL_FALSE, glm::value_ptr(aMatrix));
 }

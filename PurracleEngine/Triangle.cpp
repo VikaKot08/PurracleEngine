@@ -26,7 +26,7 @@ Triangle::Triangle()
 	glEnableVertexAttribArray(1);
 }
 
-void Triangle::Render() 
+void Triangle::Render(Shader* myShader) 
 {
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 3);

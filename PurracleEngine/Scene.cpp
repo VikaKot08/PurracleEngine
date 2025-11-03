@@ -2,5 +2,4 @@
 
 Scene::Scene()
 {
-
 }
