@@ -39,7 +39,6 @@ Mesh::~Mesh()
 
 void Mesh::Render(Shader* myShader)
 {
-	myShader->Use(); // Activate shader
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

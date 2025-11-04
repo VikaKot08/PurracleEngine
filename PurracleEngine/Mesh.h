@@ -27,6 +27,6 @@ public:
 	~Mesh() override;
 	void Render(Shader* myShader) override;
 private:
-	unsigned int indexCount;
+	int indexCount;
 };
 
