@@ -7,41 +7,41 @@
 Cube::Cube()
 {
 	float vertices[] = {
-		// Front face
-			-0.5f, -0.5f, 0.5f,
-			0.5f, -0.5f, 0.5f,
-			0.5f, 0.5f, 0.5f,
-			-0.5f, 0.5f, 0.5f,
+		// Front face (Z+)
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
 
-			// Back face            
-			-0.5f, -0.5f, -0.5f,
-			-0.5f, 0.5f, -0.5f,
-			0.5f, 0.5f, -0.5f,
-			0.5f, -0.5f, -0.5f,
+		// Back face (Z-)
+		-0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-			// Bottom face        
-			-0.5f, -0.5f, -0.5f,
-			0.5f, -0.5f, -0.5f,
-			0.5f, -0.5f, 0.5f,
-			-0.5f, -0.5f, 0.5f,
+		 // Bottom face (Y-)
+		 -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		  0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		  0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 
-			// Top face
-			-0.5f, 0.5f, -0.5f,
-			-0.5f, 0.5f, 0.5f,
-			0.5f, 0.5f, 0.5f,
-			0.5f, 0.5f, -0.5f,
+		 // Top face (Y+)
+		 -0.5f,  0.5f, -0.5f,  0.0f, 0.0f,
+		 -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		  0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		  0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
 
-			// Left face
-			-0.5f, -0.5f, -0.5f,
-			-0.5f, -0.5f, 0.5f,
-			-0.5f, 0.5f, 0.5f,
-			-0.5f, 0.5f, -0.5f,
+		  // Left face (X-)
+		  -0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		  -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		  -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
 
-			// Right face
-			0.5f, -0.5f, -0.5f,
-			0.5f, 0.5f, -0.5f,
-			0.5f, 0.5f, 0.5f,
-			0.5f, -0.5f, 0.5f,
+		  // Right face (X+)
+		   0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		   0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		   0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		   0.5f, -0.5f,  0.5f,  1.0f, 0.0f
 	};
 
 
@@ -76,10 +76,10 @@ Cube::Cube()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -89,7 +89,7 @@ Cube::~Cube()
 {
 	if (VBO) glDeleteBuffers(1, &VBO);
 	if (VAO) glDeleteVertexArrays(1, &VAO);
-	if (VAO) glDeleteBuffers(1, &EBO);
+	if (EBO) glDeleteBuffers(1, &EBO);
 }
 
 void Cube::Render(Shader* myShader)

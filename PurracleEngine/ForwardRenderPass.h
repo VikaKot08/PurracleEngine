@@ -1,6 +1,7 @@
 #pragma once
 #include "RenderPass.h"
 #include "Shader.h"
+#include "Texture.h"
 
 class ForwardRenderPass : public RenderPass
 {
@@ -9,6 +10,7 @@ public:
 	void Execute(Scene& aScene) override;
 
 private:
+	Texture* myTexture;
 	Shader* myShader;
 };
 

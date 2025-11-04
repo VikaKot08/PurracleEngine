@@ -11,9 +11,29 @@
 #include "GuiManager.h"
 
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+
+    EngineContext* ctx = static_cast<EngineContext*>(glfwGetWindowUserPointer(window));
+    if (!ctx) {
+        std::cerr << "framebuffer_size_callback: EngineContext is null!" << std::endl;
+        return;
+    }
+
+    Scene* scene = ctx->GetScene();
+    if (!scene) {
+        std::cerr << "framebuffer_size_callback: Scene is null!" << std::endl;
+        return;
+    }
+
+    Camera* camera = scene->GetCamera();
+    if (!camera) {
+        std::cerr << "framebuffer_size_callback: Camera is null!" << std::endl;
+        return;
+    }
+
+    camera->SetAspectRatio((float)width, (float)height);
 }
 
 void processInput(GLFWwindow* window)
@@ -22,20 +42,18 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 }
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1280;
+const unsigned int SCR_HEIGHT = 720;
 
 int main()
 {
-    GLFWwindow* window;
-
     if(!glfwInit()) 
     {
         std::cout << "Failed to init GLFW" << std::endl;
         return -1;
     }
 
-    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "PurracleEngine", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "PurracleEngine", NULL, NULL);
 
     if (!window)
     {
@@ -57,13 +75,13 @@ int main()
         return -1;
     }
 
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
     Scene* scene = new Scene();
     ForwardRenderer* renderer = new ForwardRenderer();
     EngineContext* context = new EngineContext(scene, renderer);
+
+    glfwSetWindowUserPointer(window, context);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
-    Triangle* triangle = new Triangle();
     Cube* cube = new Cube();
     scene->AddRenderable(cube);
 
@@ -80,6 +98,10 @@ int main()
     }
 
     gui->Close();
+    delete context;
+    delete renderer;
+    delete scene;
+    delete gui;
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;

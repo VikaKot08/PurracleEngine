@@ -2,4 +2,5 @@
 
 Scene::Scene()
 {
+	mainCamera = new Camera();
 }

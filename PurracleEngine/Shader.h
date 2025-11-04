@@ -16,5 +16,6 @@ public:
 	void EndUse();
 	~Shader();
 	void SetMatrix4(glm::mat4 aMatrix, const std::string& aName);
+	void SetInt(int aInt, const std::string& aName);
 };
 

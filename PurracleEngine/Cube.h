@@ -10,9 +10,6 @@ public:
 	void Render(Shader* myShader) override;
 
 private:
-	unsigned int VBO;
-	unsigned int VAO;
-	unsigned int EBO;
 	int indicesCount;
 	float rotationAngle = 0;
 };
