@@ -3,9 +3,9 @@
 glm::mat4 Renderable::GetMatrix() const
 {
 	glm::mat4 sceneMatrix = glm::translate(glm::mat4(1.0f), position);
-	sceneMatrix = glm::rotate(sceneMatrix, rotation.x, glm::vec3(1, 0, 0));
-	sceneMatrix = glm::rotate(sceneMatrix, rotation.y, glm::vec3(0, 1, 0));
-	sceneMatrix = glm::rotate(sceneMatrix, rotation.z, glm::vec3(0, 0, 1));
+	sceneMatrix = glm::rotate(sceneMatrix, glm::radians(rotation.x), glm::vec3(1, 0, 0));
+	sceneMatrix = glm::rotate(sceneMatrix, glm::radians(rotation.y), glm::vec3(0, 1, 0));
+	sceneMatrix = glm::rotate(sceneMatrix, glm::radians(rotation.z), glm::vec3(0, 0, 1));
 	sceneMatrix = glm::scale(sceneMatrix, scale);
 
 	glm::mat4 worldMatrix = sceneMatrix * localTransform;

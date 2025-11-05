@@ -13,7 +13,7 @@ public:
 
 private:
 	std::vector<Mesh*> meshes;
-
+	void LoadModelSimple(const std::string& path);
 	void LoadModel(const std::string& path);
 };
 

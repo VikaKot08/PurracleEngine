@@ -154,6 +154,7 @@
     <ClCompile Include="EngineContext.cpp" />
     <ClCompile Include="ForwardRenderer.cpp" />
     <ClCompile Include="ForwardRenderPass.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GuiManager.cpp" />
     <ClCompile Include="main.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="EngineContext.h" />
     <ClInclude Include="ForwardRenderer.h" />
     <ClInclude Include="ForwardRenderPass.h" />
+    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="GuiManager.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />

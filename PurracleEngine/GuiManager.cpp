@@ -1,6 +1,5 @@
 #include "GuiManager.h"
 #include <stb_image.h>
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -104,6 +103,13 @@ void SetPurracleDarkStyle() {
     style.FrameBorderSize = 0.0f;
 }
 
+float GuiManager::WrapAngle(float angle)
+{
+    while (angle >= 360.0f) angle -= 360.0f;
+    while (angle < 0.0f) angle += 360.0f;
+    return angle;
+}
+
 void GuiManager::Start(GLFWwindow* aWindow)
 {
     IMGUI_CHECKVERSION();
@@ -144,12 +150,56 @@ void GuiManager::Update(GLFWwindow* aWindow)
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow();
+
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::DockSpace(viewport->ID, viewport->Size);
+
+
+    ImGui::SetNextWindowPos(ImVec2(1000, 300), 4);
+    ImGui::Begin("Transform Controls");
+    ImGui::SliderFloat("Scale", &scale, 0.1f, 5.0f);
+
+    ImGui::Text("Position");
+    ImGui::InputFloat3("##Position", glm::value_ptr(positionVec)); 
+
+    ImGui::Text("Rotation (degrees)");
+    ImGui::InputFloat3("##Rotation", glm::value_ptr(rotationVecInput));
+
+    float maxSafe = 1e6f;
+    for (int i = 0; i < 3; i++)
+    {
+        if (rotationVecInput[i] > maxSafe) rotationVecInput[i] = maxSafe;
+        if (rotationVecInput[i] < -maxSafe) rotationVecInput[i] = -maxSafe;
+    }
+
+    rotationVec.x = fmod(rotationVecInput.x, 360.0f);
+    if (rotationVec.x < 0.0f) rotationVec.x += 360.0f;
+
+    rotationVec.y = fmod(rotationVecInput.y, 360.0f);
+    if (rotationVec.y < 0.0f) rotationVec.y += 360.0f;
+
+    rotationVec.z = fmod(rotationVecInput.z, 360.0f);
+    if (rotationVec.z < 0.0f) rotationVec.z += 360.0f;
+
+    rotationVec.x = WrapAngle(rotationVecInput.x);
+    rotationVec.y = WrapAngle(rotationVecInput.y);
+    rotationVec.z = WrapAngle(rotationVecInput.z);
+
+    rotationVecInput.x = WrapAngle(rotationVecInput.x);
+    rotationVecInput.y = WrapAngle(rotationVecInput.y);
+    rotationVecInput.z = WrapAngle(rotationVecInput.z);
+
+    ImGui::Text("Scale");
+    ImGui::InputFloat3("##Scale", glm::value_ptr(scaleVec));
+
+    ImGui::End();
+
+
+
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    if (ImGuiConfigFlags_ViewportsEnable)
+    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
         GLFWwindow* backup_current_context = glfwGetCurrentContext();
         ImGui::UpdatePlatformWindows();

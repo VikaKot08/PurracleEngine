@@ -43,6 +43,13 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 }
 
+float WrapAngle(float angle)
+{
+    while (angle >= 360.0f) angle -= 360.0f;
+    while (angle < 0.0f) angle += 360.0f;
+    return angle;
+}
+
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 
@@ -83,25 +90,30 @@ int main()
     glfwSetWindowUserPointer(window, context);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
-    Cube* cube = new Cube();
+
+
+
+
     Model* model = new Model("Assets/Models/Cube.obj");
-    model->scale = glm::vec3( 1.5f, 1.5f, 1.5f );
+    model->scale = glm::vec3( 1.0f, 1.0f, 1.0f );
     model->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     model->position = glm::vec3(0.0f, 0.0f, -6.0f);
 
     scene->AddRenderable(model);
-    float lastFrame = 0.0f;
 
     while (!glfwWindowShouldClose(window))
     {
-        float currentFrame = static_cast<float>(glfwGetTime());
-        float deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+        model->rotation = gui->rotationVec;
+        model->rotation.x = WrapAngle(model->rotation.x);
+        model->rotation.y = WrapAngle(model->rotation.y);
+        model->rotation.z = WrapAngle(model->rotation.z);
 
-        // Rotate the model
-        model->rotation.y += deltaTime * 1.0f;
-        model->rotation.x += deltaTime * 1.0f;
-        model->rotation.z += deltaTime * 1.0f;
+        model->position = gui->positionVec;
+        model->scale = gui->scaleVec * gui->scale;
+
+
+
+
 
         processInput(window);
         glfwPollEvents();
