@@ -2,7 +2,7 @@
 
 ForwardRenderPass::ForwardRenderPass()
 {
-	myTexture = new Texture("Assets/Textures/Lava.jpg");
+	myTexture = new Texture("Assets/Textures/Cube.png");
 	myShader = new Shader("Assets/Shaders/VertexShader.glsl", "Assets/Shaders/FragmentShader.glsl");
 }
 

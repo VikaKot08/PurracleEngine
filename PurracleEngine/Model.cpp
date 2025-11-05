@@ -1,4 +1,10 @@
 #include "Model.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+#include <cfloat>  // for FLT_MAX
+#include <algorithm>
 
 Model::Model(const std::string& path)
 {
@@ -21,76 +27,125 @@ void Model::Render(Shader* myShader)
 
 void Model::LoadModel(const std::string& path)
 {
-    ufbx_load_opts opts = { 0 };
-    opts.target_axes = ufbx_axes_right_handed_y_up;
-    opts.target_unit_meters = 1.0f;
+    Assimp::Importer importer;
 
-    ufbx_error error;
-    ufbx_scene* scene = ufbx_load_file(path.c_str(), &opts, &error);
+    const aiScene* scene = importer.ReadFile(path,
+        aiProcess_Triangulate |           
+        aiProcess_GenNormals |            
+        aiProcess_FlipUVs |               
+        aiProcess_CalcTangentSpace |      
+        aiProcess_JoinIdenticalVertices   
+    );
 
-    if (!scene)
+    // Check for errors
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
-        std::cerr << "ERROR::UFBX:: Failed to load: " << path << std::endl;
-        std::cerr << "Error: " << error.description.data << std::endl;
+        std::cerr << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
         return;
     }
 
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
+    std::cout << "Model loaded successfully!" << std::endl;
+    std::cout << "Number of meshes: " << scene->mNumMeshes << std::endl;
 
     // Process all meshes in the scene
-    for (size_t i = 0; i < scene->meshes.count; i++)
+    for (unsigned int i = 0; i < scene->mNumMeshes; i++)
     {
-        ufbx_mesh* mesh = scene->meshes.data[i];
+        aiMesh* mesh = scene->mMeshes[i];
 
-        size_t num_triangles = mesh->num_triangles;
+        std::vector<Vertex> vertices;
+        std::vector<unsigned int> indices;
 
-        // Reserve space for efficiency
-        size_t vertex_offset = vertices.size();
+        // Reserve space
+        vertices.reserve(mesh->mNumVertices);
+        indices.reserve(mesh->mNumFaces * 3);
 
-        // Process each triangle
-        for (size_t tri = 0; tri < num_triangles; tri++)
+        // Process vertices
+        for (unsigned int v = 0; v < mesh->mNumVertices; v++)
         {
-            // Get the three vertices of this triangle
-            for (size_t corner = 0; corner < 3; corner++)
+            Vertex vertex;
+
+            // Position
+            vertex.Position = glm::vec3(
+                mesh->mVertices[v].x,
+                mesh->mVertices[v].y,
+                mesh->mVertices[v].z
+            );
+
+            // Normal
+            if (mesh->HasNormals())
             {
-                uint32_t index = mesh->vertex_indices.data[tri * 3 + corner];
+                vertex.Normal = glm::vec3(
+                    mesh->mNormals[v].x,
+                    mesh->mNormals[v].y,
+                    mesh->mNormals[v].z
+                );
+            }
+            else
+            {
+                vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
+            }
 
-                Vertex vertex;
+            // Texture coordinates
+            if (mesh->mTextureCoords[0]) // Check if mesh has texture coordinates
+            {
+                vertex.TexCoords = glm::vec2(
+                    mesh->mTextureCoords[0][v].x,
+                    mesh->mTextureCoords[0][v].y
+                );
+            }
+            else
+            {
+                vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+            }
 
-                // Position
-                ufbx_vec3 pos = ufbx_get_vertex_vec3(&mesh->vertex_position, index);
-                vertex.Position = glm::vec3(pos.x, pos.y, pos.z);
+            vertices.push_back(vertex);
+        }
 
-                // Normal
-                if (mesh->vertex_normal.exists)
-                {
-                    ufbx_vec3 normal = ufbx_get_vertex_vec3(&mesh->vertex_normal, index);
-                    vertex.Normal = glm::vec3(normal.x, normal.y, normal.z);
-                }
-                else
-                {
-                    vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
-                }
-
-                // UV coordinates
-                if (mesh->vertex_uv.exists)
-                {
-                    ufbx_vec2 uv = ufbx_get_vertex_vec2(&mesh->vertex_uv, index);
-                    vertex.TexCoords = glm::vec2(uv.x, uv.y);
-                }
-                else
-                {
-                    vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-                }
-
-                vertices.push_back(vertex);
-                indices.push_back(static_cast<unsigned int>(vertex_offset + tri * 3 + corner));
+        // Process indices
+        for (unsigned int f = 0; f < mesh->mNumFaces; f++)
+        {
+            aiFace face = mesh->mFaces[f];
+            for (unsigned int idx = 0; idx < face.mNumIndices; idx++)
+            {
+                indices.push_back(face.mIndices[idx]);
             }
         }
 
+        std::cout << "  Mesh " << i << ": " << vertices.size() << " vertices, "
+            << indices.size() << " indices" << std::endl;
+
+        // Create mesh
         meshes.push_back(new Mesh(vertices, indices));
     }
 
-    ufbx_free_scene(scene);
+    std::cout << "Total meshes loaded: " << meshes.size() << std::endl;
+
+    std::cout << "Total meshes loaded: " << meshes.size() << std::endl;
+
+    // Calculate bounding box
+    glm::vec3 minBounds(FLT_MAX);
+    glm::vec3 maxBounds(-FLT_MAX);
+
+    for (unsigned int i = 0; i < scene->mNumMeshes; i++)
+    {
+        aiMesh* mesh = scene->mMeshes[i];
+        for (unsigned int v = 0; v < mesh->mNumVertices; v++)
+        {
+            minBounds.x = std::min(minBounds.x, mesh->mVertices[v].x);
+            minBounds.y = std::min(minBounds.y, mesh->mVertices[v].y);
+            minBounds.z = std::min(minBounds.z, mesh->mVertices[v].z);
+
+            maxBounds.x = std::max(maxBounds.x, mesh->mVertices[v].x);
+            maxBounds.y = std::max(maxBounds.y, mesh->mVertices[v].y);
+            maxBounds.z = std::max(maxBounds.z, mesh->mVertices[v].z);
+        }
+    }
+
+    glm::vec3 size = maxBounds - minBounds;
+    glm::vec3 center = (minBounds + maxBounds) * 0.5f;
+
+    std::cout << "Model bounds - Min: (" << minBounds.x << ", " << minBounds.y << ", " << minBounds.z << ")" << std::endl;
+    std::cout << "Model bounds - Max: (" << maxBounds.x << ", " << maxBounds.y << ", " << maxBounds.z << ")" << std::endl;
+    std::cout << "Model size: (" << size.x << ", " << size.y << ", " << size.z << ")" << std::endl;
+    std::cout << "Model center: (" << center.x << ", " << center.y << ", " << center.z << ")" << std::endl;
 }

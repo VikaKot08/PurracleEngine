@@ -1,8 +1,6 @@
 #pragma once
 #include "Renderable.h"
 #include "Mesh.h"
-#define UFBX_REAL_IS_FLOAT
-#include "FBX/ufbx.h"
 #include <iostream>
 
 class Model : public Renderable

@@ -4,6 +4,7 @@
 
 #include "Triangle.h"
 #include "Cube.h"
+#include "Model.h"
 #include "Shader.h"
 
 #include "EngineContext.h"
@@ -83,10 +84,25 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
     Cube* cube = new Cube();
-    scene->AddRenderable(cube);
+    Model* model = new Model("Assets/Models/Cube.obj");
+    model->scale = glm::vec3( 1.5f, 1.5f, 1.5f );
+    model->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    model->position = glm::vec3(0.0f, 0.0f, -6.0f);
+
+    scene->AddRenderable(model);
+    float lastFrame = 0.0f;
 
     while (!glfwWindowShouldClose(window))
     {
+        float currentFrame = static_cast<float>(glfwGetTime());
+        float deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        // Rotate the model
+        model->rotation.y += deltaTime * 1.0f;
+        model->rotation.x += deltaTime * 1.0f;
+        model->rotation.z += deltaTime * 1.0f;
+
         processInput(window);
         glfwPollEvents();
 

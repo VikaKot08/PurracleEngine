@@ -1,10 +1,8 @@
 #include "Mesh.h"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indicies)
 {
-	indexCount = indicies.size();
+	indexCount = static_cast<GLsizei>(indicies.size());
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);

@@ -4,6 +4,8 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Renderable.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 struct Vertex 
 {
@@ -27,6 +29,6 @@ public:
 	~Mesh() override;
 	void Render(Shader* myShader) override;
 private:
-	int indexCount;
+	GLsizei indexCount;
 };
 
