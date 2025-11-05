@@ -10,12 +10,11 @@
 #include "EngineContext.h"
 #include "ForwardRenderer.h"
 #include "GuiManager.h"
-
+#include "FrameBuffer.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    glViewport(0, 0, width, height);
-
+    // Don't set viewport here anymore - it will be set by the framebuffer size
     EngineContext* ctx = static_cast<EngineContext*>(glfwGetWindowUserPointer(window));
     if (!ctx) {
         std::cerr << "framebuffer_size_callback: EngineContext is null!" << std::endl;
@@ -43,19 +42,12 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 }
 
-float WrapAngle(float angle)
-{
-    while (angle >= 360.0f) angle -= 360.0f;
-    while (angle < 0.0f) angle += 360.0f;
-    return angle;
-}
-
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 
 int main()
 {
-    if(!glfwInit()) 
+    if (!glfwInit())
     {
         std::cout << "Failed to init GLFW" << std::endl;
         return -1;
@@ -73,7 +65,6 @@ int main()
     gui->SetIcon(window);
 
     glfwMakeContextCurrent(window);
-
     gui->Start(window);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -89,42 +80,81 @@ int main()
 
     glfwSetWindowUserPointer(window, context);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    
 
+    FrameBuffer* frameBuffer = new FrameBuffer(800, 600);
+    std::vector<Model*> models;
 
+    // Create multiple models
+    Model* model1 = new Model("Assets/Models/Cube.obj");
+    model1->scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    model1->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    model1->position = glm::vec3(-3.0f, 0.0f, -6.0f);
+    scene->AddRenderable(model1);
+    models.push_back(model1);
 
+    Model* model2 = new Model("Assets/Models/Cube.obj");
+    model2->scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    model2->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    model2->position = glm::vec3(0.0f, 0.0f, -6.0f);
+    scene->AddRenderable(model2);
+    models.push_back(model2);
 
-    Model* model = new Model("Assets/Models/Cube.obj");
-    model->scale = glm::vec3( 1.0f, 1.0f, 1.0f );
-    model->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-    model->position = glm::vec3(0.0f, 0.0f, -6.0f);
+    Model* model3 = new Model("Assets/Models/Cube.obj");
+    model3->scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    model3->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    model3->position = glm::vec3(3.0f, 0.0f, -6.0f);
+    scene->AddRenderable(model3);
+    models.push_back(model3);
 
-    scene->AddRenderable(model);
+    // Pass model list, camera, and framebuffer to GUI manager
+    gui->SetModelList(&models);
+    gui->SetCamera(scene->GetCamera());
+    gui->SetFrameBuffer(frameBuffer);
+
+    // Select the first model by default
+    if (!models.empty())
+    {
+        gui->SelectModel(models[0]);
+    }
 
     while (!glfwWindowShouldClose(window))
     {
-        model->rotation = gui->rotationVec;
-        model->rotation.x = WrapAngle(model->rotation.x);
-        model->rotation.y = WrapAngle(model->rotation.y);
-        model->rotation.z = WrapAngle(model->rotation.z);
-
-        model->position = gui->positionVec;
-        model->scale = gui->scaleVec * gui->scale;
-
-
-
-
-
         processInput(window);
         glfwPollEvents();
 
-        gui->Update(window);
+        int viewportWidth = gui->GetViewportWidth();
+        int viewportHeight = gui->GetViewportHeight();
+        if (viewportWidth > 0 && viewportHeight > 0)
+        {
+            scene->GetCamera()->SetAspectRatio((float)viewportWidth, (float)viewportHeight);
+        }
+
+        frameBuffer->Bind();
+        glViewport(0, 0, frameBuffer->GetWidth(), frameBuffer->GetHeight());
+        glClearColor(0.314f, 0.290f, 0.439f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         context->Draw();
 
+        frameBuffer->Unbind();
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        gui->Update(window);
+
         glfwSwapBuffers(window);
-        
     }
 
+    // Cleanup
+    for (Model* model : models)
+    {
+        delete model;
+    }
+
+    delete frameBuffer;
     gui->Close();
     delete context;
     delete renderer;
@@ -134,6 +164,3 @@ int main()
     glfwTerminate();
     return 0;
 }
-
-
-
