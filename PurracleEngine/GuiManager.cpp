@@ -1,12 +1,15 @@
 #include "GuiManager.h"
 #include "Model.h"
 #include "Camera.h"
-#include "MousePicker.h"
 #include "FrameBuffer.h"
+#include "Scene.h"
 #include <stb_image.h>
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "ImGuizmo.h"
+
+static ImGuizmo::OPERATION sGizmoOperation = ImGuizmo::TRANSLATE;
+static ImGuizmo::MODE      sGizmoMode = ImGuizmo::LOCAL;
+static bool                sUseSnap = false;
+static glm::vec3           sSnapVec = glm::vec3(1.0f);
 
 void SetPurracleStyle()
 {
@@ -130,9 +133,10 @@ void GuiManager::SetModelList(std::vector<Model*>* models)
     modelList = models;
 }
 
-void GuiManager::SetCamera(Camera* cam)
+void GuiManager::SetScene(Scene* scn)
 {
-    camera = cam;
+    scene = scn;
+    camera = scn->GetCamera();
 }
 
 void GuiManager::SetFrameBuffer(FrameBuffer* fb)
@@ -159,13 +163,16 @@ void GuiManager::UpdateSelectedModelTransform()
         selectedModel->position = positionVec;
         selectedModel->rotation = rotationVec;
         selectedModel->scale = scaleVec;
+
+        if (scene) {
+            scene->MarkDirty();
+        }
     }
 }
 
 void GuiManager::HandleMouseClick(GLFWwindow* window)
 {
-    // Only pick if viewport is hovered and we have valid data
-    if (!m_viewportHovered || !camera || !modelList)
+    if (!m_viewportHovered || !camera || !modelList || !scene)
         return;
 
     double mouseX, mouseY;
@@ -175,20 +182,28 @@ void GuiManager::HandleMouseClick(GLFWwindow* window)
     mouseX -= (viewportPos.x - mainViewport->Pos.x);
     mouseY -= (viewportPos.y - mainViewport->Pos.y);
 
-    // Check if click is within viewport bounds
     if (mouseX < 0 || mouseY < 0 || mouseX > viewportSize.x || mouseY > viewportSize.y)
         return;
 
-    glm::vec3 rayDirection = MousePicker::GetMouseRay(mouseX, mouseY,
-        (int)viewportSize.x,
-        (int)viewportSize.y,
-        camera);
+    // Calculate ray direction
+    float x = (2.0f * mouseX) / viewportSize.x - 1.0f;
+    float y = 1.0f - (2.0f * mouseY) / viewportSize.y;
+
+    glm::mat4 projection = camera->GetProjection();
+    glm::mat4 view = camera->GetView();
+
+    glm::vec4 rayClip = glm::vec4(x, y, -1.0f, 1.0f);
+    glm::vec4 rayEye = glm::inverse(projection) * rayClip;
+    rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
+
+    glm::vec3 rayWorld = glm::vec3(glm::inverse(view) * rayEye);
+    rayWorld = glm::normalize(rayWorld);
+
     glm::vec3 rayOrigin = camera->GetPosition();
 
-    // Pick model
-    Model* pickedModel = MousePicker::PickModel(rayOrigin, rayDirection, modelList);
-    if (pickedModel)
-    {
+    // Use scene's ray tracing
+    Model* pickedModel = scene->TraceRay(rayOrigin, rayWorld);
+    if (pickedModel) {
         SelectModel(pickedModel);
     }
 }
@@ -272,16 +287,14 @@ void GuiManager::DrawViewport()
     viewportPos = ImGui::GetCursorScreenPos();
     viewportSize = ImGui::GetContentRegionAvail();
 
-    // Resize framebuffer if viewport size changed
     if (frameBuffer && viewportSize.x > 0 && viewportSize.y > 0)
     {
         frameBuffer->ValidSize((int)viewportSize.x, (int)viewportSize.y);
 
-        // Display the framebuffer texture
         ImGui::Image(
             (void*)(intptr_t)frameBuffer->GetTexture(),
             viewportSize,
-            ImVec2(0, 1),  // UV coordinates flipped for OpenGL
+            ImVec2(0, 1),
             ImVec2(1, 0)
         );
     }
@@ -296,7 +309,6 @@ void GuiManager::Update(GLFWwindow* aWindow)
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    // Create main dockspace
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
@@ -319,12 +331,10 @@ void GuiManager::Update(GLFWwindow* aWindow)
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
     ImGui::End();
 
-    // Draw UI panels
     DrawSceneHierarchy();
     DrawTransformControls();
     DrawViewport();
 
-    // Handle mouse picking
     if (ImGui::IsMouseClicked(0) && m_viewportHovered && !ImGui::IsAnyItemActive())
     {
         HandleMouseClick(aWindow);

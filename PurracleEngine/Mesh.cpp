@@ -1,7 +1,9 @@
 #include "Mesh.h"
 
-Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indicies)
+Mesh::Mesh(const std::vector<Vertex>& someVertices, const std::vector<unsigned int>& someIndicies)
 {
+	vertices = someVertices;
+	indicies = someIndicies;
 	indexCount = static_cast<GLsizei>(indicies.size());
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);

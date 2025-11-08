@@ -28,6 +28,8 @@ public:
 	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indicies);
 	~Mesh() override;
 	void Render(Shader* myShader) override;
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indicies;
 private:
 	GLsizei indexCount;
 };

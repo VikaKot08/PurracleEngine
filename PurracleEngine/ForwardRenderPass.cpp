@@ -18,7 +18,7 @@ void ForwardRenderPass::Execute(Scene& aScene)
 	myShader->SetMatrix4(view, "view");
 	myShader->SetMatrix4(proj, "projection");
 
-	for(auto& object : aScene.objects)
+	for(auto& object : aScene.renderables)
 	{
 		object->Render(myShader);
 	}

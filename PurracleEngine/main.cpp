@@ -14,7 +14,6 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // Don't set viewport here anymore - it will be set by the framebuffer size
     EngineContext* ctx = static_cast<EngineContext*>(glfwGetWindowUserPointer(window));
     if (!ctx) {
         std::cerr << "framebuffer_size_callback: EngineContext is null!" << std::endl;
@@ -106,10 +105,13 @@ int main()
     scene->AddRenderable(model3);
     models.push_back(model3);
 
-    // Pass model list, camera, and framebuffer to GUI manager
+    // Setup GUI
     gui->SetModelList(&models);
-    gui->SetCamera(scene->GetCamera());
+    gui->SetScene(scene);
     gui->SetFrameBuffer(frameBuffer);
+
+    // Build Embree scene once
+    scene->BuildEmbreeScene();
 
     // Select the first model by default
     if (!models.empty())
@@ -161,6 +163,6 @@ int main()
     delete scene;
     delete gui;
     glfwDestroyWindow(window);
-    glfwTerminate();
-    return 0;
+    glfwTerminate(); 
 }
+    
