@@ -48,6 +48,7 @@ private:
 
     void DrawSceneHierarchy();
     void DrawTransformControls();
+    void ApplyGizmosAndTransform();
     void DrawViewport();
     void HandleMouseClick(GLFWwindow* window);
     void UpdateSelectedModelTransform();
