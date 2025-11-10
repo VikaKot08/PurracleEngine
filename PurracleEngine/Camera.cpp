@@ -53,3 +53,14 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPi
             pitch = -89.0f;
     }
 }
+
+void Camera::ProcessMouseScroll(float yoffset)
+{
+    fov -= yoffset;
+
+    // Constrain FOV between 1 and 120 degrees
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 120.0f)
+        fov = 120.0f;
+}

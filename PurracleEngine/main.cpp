@@ -97,6 +97,23 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     }
 }
 
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    EngineContext* ctx = static_cast<EngineContext*>(glfwGetWindowUserPointer(window));
+    if (ctx)
+    {
+        Scene* scene = ctx->GetScene();
+        if (scene)
+        {
+            Camera* camera = scene->GetCamera();
+            if (camera)
+            {
+                camera->ProcessMouseScroll(static_cast<float>(yoffset));
+            }
+        }
+    }
+}
+
 void processInput(GLFWwindow* window, Scene* scene, float deltaTime)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -167,6 +184,7 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     FrameBuffer* frameBuffer = new FrameBuffer(800, 600);
     std::vector<Model*> models;

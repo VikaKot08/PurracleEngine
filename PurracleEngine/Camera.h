@@ -32,4 +32,5 @@ public:
 
     // Mouse input methods
     void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
+    void ProcessMouseScroll(float yoffset);
 };
