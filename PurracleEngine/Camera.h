@@ -5,29 +5,31 @@
 class Camera
 {
 public:
-	Camera();
-	void SetPosition(const glm::vec3& aPos);
-	void LookAt(const glm::vec3& aTarget, const glm::vec3& aUp);
+    glm::vec3 position;
+    glm::vec3 up;
 
-	glm::mat4 GetView() const;
-	glm::mat4 GetProjection() const;
+    float yaw = -90.0f;    // Initialize to -90 to look forward
+    float pitch = 0.0f;
 
-	const glm::vec3& GetPosition() { return position; }
+    float fov;
+    float aspectRatio;
+    float near;
+    float far;
 
-	void SetFov(float aFov) { fov = aFov; };
-	void SetAspectRatioInternal(float aAspect) { aspectRatio = aAspect; }
-	void SetAspectRatio(float width, float height);
-	void SetNearFar(float aNearPlane, float aFarPlane) { near = aNearPlane; far = aFarPlane; }
+    // Mouse sensitivity
+    float mouseSensitivity = 0.1f;
 
-	glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
+    Camera();
 
-private:
-	glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f);
-	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+    void SetPosition(const glm::vec3& aPos);
+    glm::vec3 GetPosition() const { return position; }
 
-	float fov = 90.0f;
-	float aspectRatio = 1280.0f / 720.0f;
-	float near = 0.1f;
-	float far = 100.0f;
+    glm::mat4 GetView() const;
+    glm::mat4 GetProjection() const;
+
+    void SetAspectRatio(float width, float height);
+    void SetAspectRatioInternal(float ratio) { aspectRatio = ratio; }
+
+    // Mouse input methods
+    void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
 };
-

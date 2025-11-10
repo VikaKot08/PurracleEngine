@@ -16,6 +16,12 @@
 
 auto lastTime = std::chrono::high_resolution_clock::now();
 
+// Mouse state variables
+bool firstMouse = true;
+bool rightMousePressed = false;
+double lastX = 0.0;
+double lastY = 0.0;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     EngineContext* ctx = static_cast<EngineContext*>(glfwGetWindowUserPointer(window));
@@ -37,6 +43,58 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     }
 
     camera->SetAspectRatio((float)width, (float)height);
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_RIGHT)
+    {
+        if (action == GLFW_PRESS)
+        {
+            rightMousePressed = true;
+            firstMouse = true; // Reset to avoid jump on first movement
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+        else if (action == GLFW_RELEASE)
+        {
+            rightMousePressed = false;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
+    }
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    if (!rightMousePressed)
+        return;
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+        return;
+    }
+
+    float xoffset = static_cast<float>(xpos - lastX);
+    float yoffset = static_cast<float>(lastY - ypos); // Reversed since y-coordinates go from bottom to top
+
+    lastX = xpos;
+    lastY = ypos;
+
+    EngineContext* ctx = static_cast<EngineContext*>(glfwGetWindowUserPointer(window));
+    if (ctx)
+    {
+        Scene* scene = ctx->GetScene();
+        if (scene)
+        {
+            Camera* camera = scene->GetCamera();
+            if (camera)
+            {
+                camera->ProcessMouseMovement(xoffset, yoffset);
+            }
+        }
+    }
 }
 
 void processInput(GLFWwindow* window, Scene* scene, float deltaTime)
@@ -107,6 +165,8 @@ int main()
 
     glfwSetWindowUserPointer(window, context);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     FrameBuffer* frameBuffer = new FrameBuffer(800, 600);
     std::vector<Model*> models;
@@ -196,6 +256,5 @@ int main()
     delete scene;
     delete gui;
     glfwDestroyWindow(window);
-    glfwTerminate(); 
+    glfwTerminate();
 }
-    

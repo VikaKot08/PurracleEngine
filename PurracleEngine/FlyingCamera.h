@@ -11,5 +11,6 @@ public:
 private:
 	Camera* camera;
 	float speed = 5.0f;
+	float sensitivity = 0.1f;
 };
 
