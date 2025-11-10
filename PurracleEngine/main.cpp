@@ -12,6 +12,10 @@
 #include "GuiManager.h"
 #include "FrameBuffer.h"
 
+#include <chrono>
+
+auto lastTime = std::chrono::high_resolution_clock::now();
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     EngineContext* ctx = static_cast<EngineContext*>(glfwGetWindowUserPointer(window));
@@ -35,10 +39,34 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     camera->SetAspectRatio((float)width, (float)height);
 }
 
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window, Scene* scene, float deltaTime)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    glm::vec4 direction(0.0f);
+
+    //Forward/back
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        direction.z += 1.0f;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        direction.z -= 1.0f;
+
+    // Left/right
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        direction.x += 1.0f;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        direction.x -= 1.0f;
+
+    // Up/down
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        direction.y += 1.0f;
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        direction.y -= 1.0f;
+
+    if (direction != glm::vec4(0.0f))
+        scene->UpdateFlyingCamera(direction, deltaTime);
+
 }
 
 const unsigned int SCR_WIDTH = 1280;
@@ -121,7 +149,12 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
-        processInput(window);
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<float> delta = currentTime - lastTime;
+        float deltaTime = delta.count(); // seconds
+        lastTime = currentTime;
+
+        processInput(window, scene, deltaTime);
         glfwPollEvents();
 
         int viewportWidth = gui->GetViewportWidth();

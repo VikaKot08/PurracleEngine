@@ -111,6 +111,9 @@
     <ClCompile Include="ImGuizmo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FlyingCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imgui_impl_glfw.h">
@@ -198,6 +201,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ImGuizmo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FlyingCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

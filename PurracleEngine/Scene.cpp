@@ -12,10 +12,17 @@ Scene::Scene()
 {
     mainCamera = new Camera();
 
+    flyingCamera = new FlyingCamera(mainCamera);
+
     embreeDevice = rtcNewDevice(nullptr);
     if (!embreeDevice) {
         std::cerr << "Failed to create Embree device" << std::endl;
     }
+}
+
+void Scene::UpdateFlyingCamera(glm::vec4 direction, float deltaTime)
+{
+    flyingCamera->Update(direction, deltaTime);
 }
 
 Scene::~Scene()

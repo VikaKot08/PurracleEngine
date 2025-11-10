@@ -152,6 +152,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="EngineContext.cpp" />
+    <ClCompile Include="FlyingCamera.cpp" />
     <ClCompile Include="ForwardRenderer.cpp" />
     <ClCompile Include="ForwardRenderPass.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="EngineContext.h" />
+    <ClInclude Include="FlyingCamera.h" />
     <ClInclude Include="ForwardRenderer.h" />
     <ClInclude Include="ForwardRenderPass.h" />
     <ClInclude Include="FrameBuffer.h" />

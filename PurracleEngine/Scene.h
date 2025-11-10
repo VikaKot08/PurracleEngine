@@ -1,5 +1,6 @@
 #pragma once
 #include "Camera.h"
+#include "FlyingCamera.h"
 #include "Renderable.h"
 #include <embree4/rtcore.h>
 #include <vector>
@@ -15,6 +16,7 @@ public:
     void AddRenderable(Renderable* renderable);
     std::vector<Renderable*> GetRenderables() const { return renderables; }
     Camera* GetCamera() const { return mainCamera; }
+    void UpdateFlyingCamera(glm::vec4 direction, float deltaTime);
 
     // Embree ray tracing
     void BuildEmbreeScene();
@@ -34,6 +36,7 @@ private:
     };
 
     Camera* mainCamera;
+    FlyingCamera* flyingCamera;
 
     // Embree data
     RTCDevice embreeDevice;

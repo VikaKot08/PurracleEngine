@@ -25,7 +25,7 @@ void Renderable::SetMatrix(const glm::mat4& matrix)
 	glm::quat rotationQuat;
 	glm::vec3 scaleVec;
 	glm::vec3 translation;
-
+	
 	if(glm::decompose(matrix, scaleVec, rotationQuat, translation, skew, perspective))
 	{
 		position = translation;

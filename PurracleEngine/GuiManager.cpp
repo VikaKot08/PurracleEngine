@@ -5,6 +5,8 @@
 #include "Scene.h"
 #include <stb_image.h>
 #include "ImGuizmo.h"
+#include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 static ImGuizmo::OPERATION sGizmoOperation = ImGuizmo::TRANSLATE;
 
@@ -301,23 +303,20 @@ void GuiManager::ApplyGizmosAndTransform()
             nullptr
         );
 
+        bool WasUsed = false;
+
         if (ImGuizmo::IsUsing())
         {
-
+            WasUsed = true;
+        }
+        if(WasUsed)
+        {
             float t[3], r[3], s[3];
             ImGuizmo::DecomposeMatrixToComponents(modelF, t, r, s);
-            selectedModel->position = glm::vec3(t[0], t[1], t[2]);
-            selectedModel->rotation = glm::vec3(r[0], r[1], r[2]);
-            selectedModel->scale = glm::vec3(s[0], s[1], s[2]);
 
-            // Sync GUI values
-            positionVec = selectedModel->position;
-            rotationVec = selectedModel->rotation;
-            rotationVecInput = rotationVec;
-            scaleVec = selectedModel->scale;
+            positionVec = glm::vec3(t[0], t[1], t[2]);
 
-            if (scene)
-                scene->MarkDirty();
+            UpdateSelectedModelTransform();
         }
     }
 }
@@ -390,8 +389,6 @@ void GuiManager::Update(GLFWwindow* aWindow)
 
 
     if (ImGui::IsKeyPressed(ImGuiKey_E)) sGizmoOperation = ImGuizmo::TRANSLATE; 
-    if (ImGui::IsKeyPressed(ImGuiKey_R)) sGizmoOperation = ImGuizmo::ROTATE;   
-    if (ImGui::IsKeyPressed(ImGuiKey_T)) sGizmoOperation = ImGuizmo::SCALE;    
 
 
     ImGui::Render();
