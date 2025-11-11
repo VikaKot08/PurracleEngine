@@ -2,6 +2,7 @@
 #include "Renderable.h"
 #include "Mesh.h"
 #include <iostream>
+#include <memory>
 
 class Model : public Renderable
 {
@@ -12,7 +13,10 @@ public:
 	void Render(Shader* myShader) override;
     glm::mat4 GetModelMatrix() const;
 	std::vector<Mesh*> meshes;
-	Texture* myTexture;
+	std::unique_ptr<Texture> myTexture;
+	
+	int meshIndex;
+	int textureIndex;
 
 	void LoadModel(const std::string& path);
 

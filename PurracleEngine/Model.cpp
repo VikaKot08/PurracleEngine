@@ -9,7 +9,9 @@
 
 Model::Model(const std::string& path, const char* pathTex)
 {
-    myTexture = new Texture(pathTex);
+    meshIndex = 0;
+    textureIndex = 0;
+    myTexture = std::make_unique<Texture>(pathTex);
 	LoadModel(path);
 }
 

@@ -61,14 +61,18 @@ private:
 
     float WrapAngle(float angle);
 
-    std::vector<std::string> availableTextures = {
-        "Assets/Textures/Cube.png",
-        "Assets/Textures/PurpleLava.jpg",
-        "Assets/Textures/RedLava.png",
-        "Assets/Textures/Purple.png",
-        "Assets/Textures/Blue.png",
-        "Assets/Textures/Beige.png"
-    };
+    std::vector<std::string> availableTextures = {"Assets/Textures/Cube.png","Assets/Textures/PurpleLava.jpg","Assets/Textures/RedLava.png", "Assets/Textures/Purple.png","Assets/Textures/Blue.png","Assets/Textures/Beige.png"};
 
+    std::vector<std::string> availableMeshes = {"Assets/Models/Cube.obj","Assets/Models/CubePrimitive.obj","Assets/Models/CylinderPrimitive.obj"};
+
+    std::vector<const char*> meshNames;
+    std::vector<const char*> textureNames;
+
+    void UpdateFileNames();
+
+    std::vector<std::string> meshFilenames;
+    std::vector<std::string> textureFilenames;
+
+    int selectedMeshIndex = 0;
     int selectedTextureIndex = 0;
 };

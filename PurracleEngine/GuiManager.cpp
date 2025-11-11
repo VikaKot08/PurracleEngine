@@ -7,6 +7,10 @@
 #include "ImGuizmo.h"
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <filesystem>
+#include <memory>
+
+namespace fs = std::filesystem;
 
 static ImGuizmo::OPERATION sGizmoOperation = ImGuizmo::TRANSLATE;
 
@@ -112,6 +116,8 @@ void GuiManager::Start(GLFWwindow* aWindow)
     }
     SetPurracleDarkStyle();
 
+    UpdateFileNames();
+
     ImGui_ImplGlfw_InitForOpenGL(aWindow, true);
     ImGui_ImplOpenGL3_Init();
 }
@@ -171,7 +177,7 @@ void GuiManager::UpdateSelectedModelTransform()
 
 void GuiManager::AddModel()
 {
-    Model* newModel = new Model("Assets/Models/CubePrimitive.obj", "Assets/Textures/RedLava.png");
+    Model* newModel = new Model("Assets/Models/Cube.obj", "Assets/Textures/Cube.png");
     newModel->position = glm::vec3(0.0f, 0.0f, 0.0f);
     newModel->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     newModel->scale = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -234,16 +240,7 @@ void GuiManager::ChangeTexture(const std::string& texturePath)
     if (!selectedModel)
         return;
 
-    // TODO: Implement texture loading for the selected model
-    // This will depend on how your Model/Mesh classes handle textures
-    // You may need to add a texture member to Model or Mesh class
-
-    // Example implementation (uncomment when you have texture support):
-    
-    if (selectedModel->myTexture) {
-        delete selectedModel->myTexture;
-    }
-    selectedModel->myTexture = new Texture(texturePath.c_str());
+    selectedModel->myTexture = std::make_unique<Texture>(texturePath.c_str());
     
 }
 
@@ -282,6 +279,44 @@ void GuiManager::HandleMouseClick(GLFWwindow* window)
     Model* pickedModel = scene->TraceRay(rayOrigin, rayWorld);
     if (pickedModel) {
         SelectModel(pickedModel);
+    }
+}
+
+void GuiManager::UpdateFileNames()
+{
+    meshFilenames.clear();
+    meshNames.clear();
+    textureFilenames.clear();
+    textureNames.clear();
+
+    meshFilenames.reserve(availableMeshes.size()); // prevent reallocations
+    meshNames.reserve(availableMeshes.size());
+    textureFilenames.reserve(availableTextures.size()); // prevent reallocations
+    textureNames.reserve(availableTextures.size());
+
+    for (const auto& mesh : availableMeshes)
+    {
+        if (mesh.empty()) continue;
+
+        std::filesystem::path p(mesh);
+        std::string filename = p.stem().string();
+        if (filename.empty()) continue;
+
+        meshFilenames.push_back(filename);
+        meshNames.push_back(meshFilenames.back().c_str());
+    }
+
+    // Textures
+    for (const auto& tex : availableTextures)
+    {
+        if (tex.empty()) continue;
+
+        std::filesystem::path p(tex);
+        std::string filename = p.stem().string();
+        if (filename.empty()) continue;
+
+        textureFilenames.push_back(filename);
+        textureNames.push_back(textureFilenames.back().c_str());
     }
 }
 
@@ -353,22 +388,25 @@ void GuiManager::DrawTransformControls()
             UpdateSelectedModelTransform();
         }
 
+        ImGui::Spacing();
+
+        // Mesh dropdown
+        ImGui::SeparatorText("Mesh");
+
+        if (ImGui::Combo("##MeshType", &selectedModel->meshIndex, meshNames.data(), meshNames.size()))
+        {
+            ChangeMesh(availableMeshes[selectedModel->meshIndex]);
+        }
+
 
         ImGui::Spacing();
 
         // Texture dropdown
         ImGui::SeparatorText("Texture");
-        std::vector<const char*> textureNames;
-        for (const auto& texture : availableTextures)
+   
+        if (ImGui::Combo("##Texture", &selectedModel->textureIndex, textureNames.data(), textureNames.size()))
         {
-            size_t lastSlash = texture.find_last_of("/\\");
-            std::string filename = (lastSlash != std::string::npos) ? texture.substr(lastSlash + 1) : texture;
-            textureNames.push_back(filename.c_str());
-        }
-
-        if (ImGui::Combo("##Texture", &selectedTextureIndex, textureNames.data(), textureNames.size()))
-        {
-            ChangeTexture(availableTextures[selectedTextureIndex]);
+            ChangeTexture(availableTextures[selectedModel->textureIndex]);
         }
 
         ImGui::Spacing();
