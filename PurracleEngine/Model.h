@@ -13,8 +13,9 @@ public:
     glm::mat4 GetModelMatrix() const;
 	std::vector<Mesh*> meshes;
 
+	void LoadModel(const std::string& path);
+
 private:
 	void LoadModelSimple(const std::string& path);
-	void LoadModel(const std::string& path);
 };
 

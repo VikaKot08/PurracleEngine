@@ -25,6 +25,16 @@ void Scene::UpdateFlyingCamera(glm::vec4 direction, float deltaTime)
     flyingCamera->Update(direction, deltaTime);
 }
 
+void Scene::DeleteModel(Renderable* model)
+{
+    auto it = std::find(renderables.begin(), renderables.end(), model);
+    if (it != renderables.end())
+    {
+        delete model;
+        renderables.erase(it);
+    }
+}
+
 Scene::~Scene()
 {
     ClearEmbreeScene();

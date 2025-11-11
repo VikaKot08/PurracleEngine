@@ -169,6 +169,90 @@ void GuiManager::UpdateSelectedModelTransform()
     }
 }
 
+void GuiManager::AddModel()
+{
+    Model* newModel = new Model("Assets/Models/Cube.obj");
+    newModel->position = glm::vec3(0.0f, 0.0f, 0.0f);
+    newModel->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    newModel->scale = glm::vec3(1.0f, 1.0f, 1.0f);
+
+    modelList->push_back(newModel);
+
+    if (scene)
+    {
+        scene->AddRenderable(newModel);
+        //scene->MarkDirty();
+        scene->BuildEmbreeScene();
+    } else 
+    {
+        std::cout << "Fail, no scene for gui " << std::endl;
+    }
+
+    SelectModel(newModel);
+}
+
+void GuiManager::DeleteSelectedModel()
+{
+    if (!selectedModel || !modelList)
+        return;
+
+    auto it = std::find(modelList->begin(), modelList->end(), selectedModel);
+    if (it != modelList->end())
+    {
+        scene->DeleteModel(selectedModel);
+        modelList->erase(it);
+        selectedModel = nullptr;
+
+        if (scene)
+        {
+            scene->BuildEmbreeScene();
+        }
+    }
+}
+
+void GuiManager::ChangeMesh(const std::string& meshPath)
+{
+    if (!selectedModel)
+        return;
+
+    glm::vec3 pos = selectedModel->position;
+    glm::vec3 rot = selectedModel->rotation;
+    glm::vec3 scl = selectedModel->scale;
+
+    for (auto mesh : selectedModel->meshes)
+        delete mesh;
+    selectedModel->meshes.clear();
+
+    selectedModel->LoadModel(meshPath);
+
+    selectedModel->position = pos;
+    selectedModel->rotation = rot;
+    selectedModel->scale = scl;
+
+    if (scene)
+    {
+        scene->BuildEmbreeScene();
+    }
+}
+
+void GuiManager::ChangeTexture(const std::string& texturePath)
+{
+    if (!selectedModel)
+        return;
+
+    // TODO: Implement texture loading for the selected model
+    // This will depend on how your Model/Mesh classes handle textures
+    // You may need to add a texture member to Model or Mesh class
+
+    // Example implementation (uncomment when you have texture support):
+    /*
+    if (selectedModel->texture) {
+        delete selectedModel->texture;
+    }
+    selectedModel->texture = new Texture(texturePath.c_str());
+    */
+}
+
 void GuiManager::HandleMouseClick(GLFWwindow* window)
 {
     if (!m_viewportHovered || !camera || !modelList || !scene)
@@ -210,6 +294,13 @@ void GuiManager::HandleMouseClick(GLFWwindow* window)
 void GuiManager::DrawSceneHierarchy()
 {
     ImGui::Begin("Scene Hierarchy");
+
+    if (ImGui::Button("Add Model", ImVec2(-1, 0)))
+    {
+        AddModel();
+    }
+
+    ImGui::Separator();
 
     if (modelList)
     {
@@ -267,6 +358,16 @@ void GuiManager::DrawTransformControls()
         {
             UpdateSelectedModelTransform();
         }
+
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        if (ImGui::Button("Delete Model", ImVec2(-1, 0)))
+        {
+            DeleteSelectedModel();
+        }
+
     }
     else
     {

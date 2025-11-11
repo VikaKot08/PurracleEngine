@@ -14,6 +14,7 @@ public:
     ~Scene();
 
     void AddRenderable(Renderable* renderable);
+    void DeleteModel(Renderable* renderable);
     std::vector<Renderable*> GetRenderables() const { return renderables; }
     Camera* GetCamera() const { return mainCamera; }
     void UpdateFlyingCamera(glm::vec4 direction, float deltaTime);

@@ -2,7 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
-
+#include <string>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -29,6 +29,12 @@ public:
 
     int GetViewportWidth() const { return (int)viewportSize.x; }
     int GetViewportHeight() const { return (int)viewportSize.y; }
+
+    void AddModel();
+    void DeleteSelectedModel();
+    void ChangeMesh(const std::string& meshPath);
+    void ChangeTexture(const std::string& texturePath);
+
 
 private:
     std::vector<Model*>* modelList = nullptr;
