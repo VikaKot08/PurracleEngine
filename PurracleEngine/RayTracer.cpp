@@ -130,7 +130,7 @@ void RayTracer::AddModelToScene(Model* model)
 
 void RayTracer::UpdateInstanceTransform(RTCGeometry instance, Model* model)
 {
-    glm::mat4 transform = model->GetModelMatrix();
+    glm::mat4 transform = model->GetMatrix();
 
     // Embree expects column-major matrices, GLM is column-major by default
     // But we need to transpose for the way Embree interprets the data

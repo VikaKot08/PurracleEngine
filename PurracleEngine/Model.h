@@ -11,7 +11,6 @@ public:
 	Model(const std::string& path, const char* pathTex);
 	~Model() override;
 	void Render(Shader* myShader) override;
-    glm::mat4 GetModelMatrix() const;
 	std::vector<Mesh*> meshes;
 	std::unique_ptr<Texture> myTexture;
 	

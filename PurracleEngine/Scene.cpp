@@ -155,7 +155,7 @@ void Scene::AddModelToEmbreeScene(Model* model)
 
 void Scene::UpdateInstanceTransform(RTCGeometry instance, Model* model)
 {
-    glm::mat4 transform = model->GetModelMatrix();
+    glm::mat4 transform = model->GetMatrix();
     rtcSetGeometryTransform(instance, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, glm::value_ptr(transform));
 
 }

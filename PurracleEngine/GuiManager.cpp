@@ -320,6 +320,60 @@ void GuiManager::UpdateFileNames()
     }
 }
 
+void GuiManager::DrawModelNode(Renderable* model)
+{
+    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DefaultOpen;
+
+    if (selectedModel == model)
+        flags |= ImGuiTreeNodeFlags_Selected;
+
+    bool isLeaf = model->children.empty();
+    if (isLeaf)
+        flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+    bool opened = ImGui::TreeNodeEx((void*)model, flags, "%s", model->name.c_str());
+
+    // Drag source
+    if (ImGui::BeginDragDropSource())
+    {
+        Renderable* payload = model;
+        ImGui::SetDragDropPayload("MODEL", &payload, sizeof(Renderable*));
+        ImGui::Text("%s", model->name.c_str());
+        ImGui::EndDragDropSource();
+    }
+
+    // Drop target
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MODEL"))
+        {
+            Renderable* dropped = *(Renderable**)payload->Data;
+            if (dropped != model)  // Don't parent to self
+            {
+                dropped->SetParent(model);
+                if (scene) {
+                    scene->MarkDirty();
+                }
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+
+    if (ImGui::IsItemClicked())
+    {
+        SelectModel(dynamic_cast<Model*>(model));
+    }
+
+    // Only push/pop if the node was opened AND it's not a leaf
+    if (opened && !isLeaf)
+    {
+        for (Renderable* child : model->children)
+            DrawModelNode(child);
+
+        ImGui::TreePop();
+    }
+}
+
 void GuiManager::DrawSceneHierarchy()
 {
     ImGui::Begin("Scene Hierarchy");
@@ -333,16 +387,10 @@ void GuiManager::DrawSceneHierarchy()
 
     if (modelList)
     {
-        for (size_t i = 0; i < modelList->size(); i++)
+        for (Model* model : *modelList)
         {
-            Model* model = (*modelList)[i];
-            std::string label = "Model " + std::to_string(i);
-
-            bool isSelected = (selectedModel == model);
-            if (ImGui::Selectable(label.c_str(), isSelected))
-            {
-                SelectModel(model);
-            }
+            if (model->parent == nullptr)
+                DrawModelNode(model);
         }
     }
 
@@ -428,7 +476,7 @@ void GuiManager::DrawTransformControls()
     ImGui::End();
 }
 
-void GuiManager::ApplyGizmosAndTransform() 
+void GuiManager::ApplyGizmosAndTransform()
 {
     if (selectedModel && camera)
     {
@@ -437,37 +485,46 @@ void GuiManager::ApplyGizmosAndTransform()
 
         glm::mat4 view = camera->GetView();
         glm::mat4 proj = camera->GetProjection();
-        glm::mat4 model = selectedModel->GetModelMatrix();
+        glm::mat4 modelMatrix = selectedModel->GetMatrix();  // Get world matrix
 
-        float viewF[16];  memcpy(viewF, glm::value_ptr(view), sizeof(viewF));
-        float projF[16];  memcpy(projF, glm::value_ptr(proj), sizeof(projF));
-        float modelF[16]; memcpy(modelF, glm::value_ptr(model), sizeof(modelF));
+        // Use local mode if object has a parent, world mode otherwise
+        ImGuizmo::MODE gizmoMode = selectedModel->parent ? ImGuizmo::LOCAL : ImGuizmo::WORLD;
 
-
-        ImGuizmo::Manipulate(
+        bool wasManipulated = ImGuizmo::Manipulate(
             glm::value_ptr(view),
             glm::value_ptr(proj),
             sGizmoOperation,
-            ImGuizmo::WORLD,
-            modelF,
+            gizmoMode,
+            glm::value_ptr(modelMatrix),
             nullptr,
             nullptr
         );
 
-        bool WasUsed = false;
-
-        if (ImGuizmo::IsUsing())
+        if (wasManipulated && ImGuizmo::IsUsing())
         {
-            WasUsed = true;
-        }
-        if(WasUsed)
-        {
-            float t[3], r[3], s[3];
-            ImGuizmo::DecomposeMatrixToComponents(modelF, t, r, s);
+            // Update the model's transform from the manipulated matrix
+            selectedModel->SetMatrix(modelMatrix);
 
-            positionVec = glm::vec3(t[0], t[1], t[2]);
+            // Update GUI vectors
+            positionVec = selectedModel->position;
+            rotationVec = selectedModel->rotation;
 
-            UpdateSelectedModelTransform();
+            // Normalize rotation display values to [0, 360) range
+            auto normalizeAngle = [](float angle) -> float {
+                while (angle >= 360.0f) angle -= 360.0f;
+                while (angle < 0.0f) angle += 360.0f;
+                return angle;
+                };
+
+            rotationVecInput.x = normalizeAngle(selectedModel->rotation.x);
+            rotationVecInput.y = normalizeAngle(selectedModel->rotation.y);
+            rotationVecInput.z = normalizeAngle(selectedModel->rotation.z);
+
+            scaleVec = selectedModel->scale;
+
+            if (scene) {
+                scene->MarkDirty();
+            }
         }
     }
 }
@@ -539,7 +596,7 @@ void GuiManager::Update(GLFWwindow* aWindow)
     }
 
 
-    if (ImGui::IsKeyPressed(ImGuiKey_E)) sGizmoOperation = ImGuizmo::TRANSLATE; 
+    if (ImGui::IsKeyPressed(ImGuiKey_T)) sGizmoOperation = ImGuizmo::TRANSLATE; 
 
 
     ImGui::Render();

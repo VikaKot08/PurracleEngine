@@ -22,12 +22,18 @@ public:
 	glm::vec3 rotation{ 0.0f };
 	glm::vec3 scale{ 1.0f };
 
+	std::string name = "NoName";
+
 	glm::mat4 localTransform{ 1.0f };
 
 	void SetLocalTransform(const glm::mat4& matrix) { localTransform = matrix; }
-	void SetParent(Renderable* aParent) { parent = aParent; }
+	void AddChild(Renderable* aChild);
+	void RemoveChild(Renderable* aChild);
+	void SetParent(Renderable* aParent);
+	void RemoveParent() { parent = nullptr;}
 
 	Renderable* parent = nullptr;
+	std::vector<Renderable*> children;
 
 	glm::mat4 GetMatrix() const;
 

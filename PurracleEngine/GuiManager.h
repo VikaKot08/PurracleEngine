@@ -11,6 +11,7 @@ class Model;
 class Camera;
 class FrameBuffer;
 class Scene;
+class Renderable;
 
 class GuiManager
 {
@@ -58,6 +59,7 @@ private:
     void DrawViewport();
     void HandleMouseClick(GLFWwindow* window);
     void UpdateSelectedModelTransform();
+    void DrawModelNode(Renderable* model);
 
     float WrapAngle(float angle);
 
