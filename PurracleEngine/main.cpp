@@ -142,6 +142,51 @@ void processInput(GLFWwindow* window, Scene* scene, float deltaTime)
     if (direction != glm::vec4(0.0f))
         scene->UpdateFlyingCamera(direction, deltaTime);
 
+
+
+    int rightState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+    if (rightState == GLFW_PRESS && !rightMousePressed)
+    {
+        rightMousePressed = true;
+        firstMouse = true;
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+    else if (rightState == GLFW_RELEASE && rightMousePressed)
+    {
+        rightMousePressed = false;
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    // --- Handle mouse movement ---
+    if (rightMousePressed)
+    {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+
+        if (firstMouse)
+        {
+            lastX = xpos;
+            lastY = ypos;
+            firstMouse = false;
+            return;
+        }
+
+        float xoffset = static_cast<float>(xpos - lastX);
+        float yoffset = static_cast<float>(lastY - ypos); // inverted y
+
+        lastX = xpos;
+        lastY = ypos;
+
+        if (scene)
+        {
+            Camera* camera = scene->GetCamera();
+            if (camera)
+            {
+                camera->ProcessMouseMovement(xoffset, yoffset);
+            }
+        }
+    }
+
 }
 
 const unsigned int SCR_WIDTH = 1280;
@@ -182,8 +227,8 @@ int main()
 
     glfwSetWindowUserPointer(window, context);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
+    //glfwSetMouseButtonCallback(window, mouse_button_callback);
+    //glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
     FrameBuffer* frameBuffer = new FrameBuffer(800, 600);
@@ -227,6 +272,10 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
+        if (!glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT)) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
+
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> delta = currentTime - lastTime;
         float deltaTime = delta.count(); // seconds
