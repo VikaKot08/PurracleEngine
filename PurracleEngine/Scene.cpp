@@ -33,6 +33,7 @@ void Scene::DeleteModel(Renderable* model)
         delete model;
         renderables.erase(it);
     }
+    BuildEmbreeScene();
 }
 
 Scene::~Scene()

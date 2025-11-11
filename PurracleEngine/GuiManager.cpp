@@ -181,7 +181,6 @@ void GuiManager::AddModel()
     if (scene)
     {
         scene->AddRenderable(newModel);
-        //scene->MarkDirty();
         scene->BuildEmbreeScene();
     } else 
     {
@@ -202,11 +201,6 @@ void GuiManager::DeleteSelectedModel()
         scene->DeleteModel(selectedModel);
         modelList->erase(it);
         selectedModel = nullptr;
-
-        if (scene)
-        {
-            scene->BuildEmbreeScene();
-        }
     }
 }
 
