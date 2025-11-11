@@ -60,4 +60,15 @@ private:
     void UpdateSelectedModelTransform();
 
     float WrapAngle(float angle);
+
+    std::vector<std::string> availableTextures = {
+        "Assets/Textures/Cube.png",
+        "Assets/Textures/PurpleLava.jpg",
+        "Assets/Textures/RedLava.png",
+        "Assets/Textures/Purple.png",
+        "Assets/Textures/Blue.png",
+        "Assets/Textures/Beige.png"
+    };
+
+    int selectedTextureIndex = 0;
 };

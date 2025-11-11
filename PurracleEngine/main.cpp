@@ -235,21 +235,21 @@ int main()
     std::vector<Model*> models;
 
     // Create multiple models
-    Model* model1 = new Model("Assets/Models/Cube.obj");
+    Model* model1 = new Model("Assets/Models/Cube.obj", "Assets/Textures/Cube.png");
     model1->scale = glm::vec3(1.0f, 1.0f, 1.0f);
     model1->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     model1->position = glm::vec3(-3.0f, 0.0f, -6.0f);
     scene->AddRenderable(model1);
     models.push_back(model1);
 
-    Model* model2 = new Model("Assets/Models/Cube.obj");
+    Model* model2 = new Model("Assets/Models/Cube.obj", "Assets/Textures/Cube.png");
     model2->scale = glm::vec3(1.0f, 1.0f, 1.0f);
     model2->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     model2->position = glm::vec3(0.0f, 0.0f, -6.0f);
     scene->AddRenderable(model2);
     models.push_back(model2);
 
-    Model* model3 = new Model("Assets/Models/Cube.obj");
+    Model* model3 = new Model("Assets/Models/Cube.obj", "Assets/Textures/Cube.png");
     model3->scale = glm::vec3(1.0f, 1.0f, 1.0f);
     model3->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     model3->position = glm::vec3(3.0f, 0.0f, -6.0f);

@@ -171,7 +171,7 @@ void GuiManager::UpdateSelectedModelTransform()
 
 void GuiManager::AddModel()
 {
-    Model* newModel = new Model("Assets/Models/Cube.obj");
+    Model* newModel = new Model("Assets/Models/CubePrimitive.obj", "Assets/Textures/RedLava.png");
     newModel->position = glm::vec3(0.0f, 0.0f, 0.0f);
     newModel->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     newModel->scale = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -239,12 +239,12 @@ void GuiManager::ChangeTexture(const std::string& texturePath)
     // You may need to add a texture member to Model or Mesh class
 
     // Example implementation (uncomment when you have texture support):
-    /*
-    if (selectedModel->texture) {
-        delete selectedModel->texture;
+    
+    if (selectedModel->myTexture) {
+        delete selectedModel->myTexture;
     }
-    selectedModel->texture = new Texture(texturePath.c_str());
-    */
+    selectedModel->myTexture = new Texture(texturePath.c_str());
+    
 }
 
 void GuiManager::HandleMouseClick(GLFWwindow* window)
@@ -351,6 +351,24 @@ void GuiManager::DrawTransformControls()
         if (ImGui::InputFloat3("##Scale", glm::value_ptr(scaleVec)))
         {
             UpdateSelectedModelTransform();
+        }
+
+
+        ImGui::Spacing();
+
+        // Texture dropdown
+        ImGui::SeparatorText("Texture");
+        std::vector<const char*> textureNames;
+        for (const auto& texture : availableTextures)
+        {
+            size_t lastSlash = texture.find_last_of("/\\");
+            std::string filename = (lastSlash != std::string::npos) ? texture.substr(lastSlash + 1) : texture;
+            textureNames.push_back(filename.c_str());
+        }
+
+        if (ImGui::Combo("##Texture", &selectedTextureIndex, textureNames.data(), textureNames.size()))
+        {
+            ChangeTexture(availableTextures[selectedTextureIndex]);
         }
 
         ImGui::Spacing();

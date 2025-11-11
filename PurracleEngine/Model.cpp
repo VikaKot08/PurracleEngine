@@ -1,4 +1,5 @@
 #include "Model.h"
+#include "Texture.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -6,8 +7,9 @@
 #include <cfloat>  // for FLT_MAX
 #include <algorithm>
 
-Model::Model(const std::string& path)
+Model::Model(const std::string& path, const char* pathTex)
 {
+    myTexture = new Texture(pathTex);
 	LoadModel(path);
 }
 
@@ -20,9 +22,11 @@ Model::~Model()
 void Model::Render(Shader* myShader) 
 {
 	myShader->SetMatrix4(GetMatrix(), "transform");
+    myTexture->Bind(0);
+    myShader->SetInt(0, "myTexture");
 	for (auto mesh : meshes)
 		mesh->Render(myShader);
-
+    myTexture->Unbind();
 }
 
 void Model::LoadModelSimple(const std::string& path)
