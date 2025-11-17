@@ -4,7 +4,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include <cfloat>  // for FLT_MAX
+#include <cfloat> 
 #include <algorithm>
 
 Model::Model(const std::string& path, const char* pathTex)
@@ -56,11 +56,9 @@ void Model::LoadModelSimple(const std::string& path)
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
 
-        // Reserve space
         vertices.reserve(mesh->mNumVertices);
         indices.reserve(mesh->mNumFaces * 3);
 
-        // Process vertices
         for (unsigned int v = 0; v < mesh->mNumVertices; v++)
         {
             Vertex vertex;
@@ -86,8 +84,7 @@ void Model::LoadModelSimple(const std::string& path)
                 vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
             }
 
-            // Texture coordinates
-            if (mesh->mTextureCoords[0]) // Check if mesh has texture coordinates
+            if (mesh->mTextureCoords[0]) 
             {
                 vertex.TexCoords = glm::vec2(
                     mesh->mTextureCoords[0][v].x,
@@ -102,7 +99,6 @@ void Model::LoadModelSimple(const std::string& path)
             vertices.push_back(vertex);
         }
 
-        // Process indices
         for (unsigned int f = 0; f < mesh->mNumFaces; f++)
         {
             aiFace face = mesh->mFaces[f];
@@ -115,7 +111,6 @@ void Model::LoadModelSimple(const std::string& path)
         meshes.push_back(new Mesh(vertices, indices));
     }
 
-    // Calculate bounding box
     glm::vec3 minBounds(FLT_MAX);
     glm::vec3 maxBounds(-FLT_MAX);
 
@@ -156,7 +151,6 @@ void Model::LoadModel(const std::string& path)
         return;
     }
 
-    // Calculate bounding box
     glm::vec3 minBounds(FLT_MAX);
     glm::vec3 maxBounds(-FLT_MAX);
 
@@ -175,10 +169,8 @@ void Model::LoadModel(const std::string& path)
         }
     }
 
-    // Compute center
     glm::vec3 center = (minBounds + maxBounds) * 0.5f;
 
-    // Shift all meshes so pivot is at center
     for (unsigned int i = 0; i < scene->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[i];
@@ -191,7 +183,6 @@ void Model::LoadModel(const std::string& path)
         }
     }
 
-    // Load meshes
     for (unsigned int i = 0; i < scene->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[i];
@@ -202,19 +193,16 @@ void Model::LoadModel(const std::string& path)
         vertices.reserve(mesh->mNumVertices);
         indices.reserve(mesh->mNumFaces * 3);
 
-        // Process vertices
         for (unsigned int v = 0; v < mesh->mNumVertices; v++)
         {
             Vertex vertex;
 
-            // Position (already centered)
             vertex.Position = glm::vec3(
                 mesh->mVertices[v].x,
                 mesh->mVertices[v].y,
                 mesh->mVertices[v].z
             );
 
-            // Normal
             if (mesh->HasNormals())
             {
                 vertex.Normal = glm::vec3(
@@ -244,7 +232,6 @@ void Model::LoadModel(const std::string& path)
             vertices.push_back(vertex);
         }
 
-        // Process indices
         for (unsigned int f = 0; f < mesh->mNumFaces; f++)
         {
             aiFace face = mesh->mFaces[f];

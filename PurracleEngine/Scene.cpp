@@ -166,7 +166,6 @@ void Scene::UpdateEmbreeTransforms()
 
     std::cout << "Updating Embree transforms..." << std::endl;
 
-    // Update all instance transforms
     for (auto& info : geometryMap) {
         if (info.model && info.instance) {
             UpdateInstanceTransform(info.instance, info.model);
@@ -205,7 +204,6 @@ Model* Scene::TraceRay(const glm::vec3& origin, const glm::vec3& direction)
 
     if (rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID || rayhit.hit.instID[0] != RTC_INVALID_GEOMETRY_ID)
     {
-        // Determine top-level geometry id: if instanced, instID[0] is the id of the instance as attached to embreeScene.
         uint32_t topLevelGeomID = (rayhit.hit.instID[0] != RTC_INVALID_GEOMETRY_ID)
             ? rayhit.hit.instID[0]
             : rayhit.hit.geomID;

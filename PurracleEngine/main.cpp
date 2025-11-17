@@ -52,7 +52,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         if (action == GLFW_PRESS)
         {
             rightMousePressed = true;
-            firstMouse = true; // Reset to avoid jump on first movement
+            firstMouse = true; 
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
         else if (action == GLFW_RELEASE)
@@ -140,7 +140,7 @@ void processInput(GLFWwindow* window, Scene* scene, float deltaTime)
         direction.x -= 1.0f;
 
     // Up/down
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         direction.y += 1.0f;
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
         direction.y -= 1.0f;
@@ -163,7 +163,6 @@ void processInput(GLFWwindow* window, Scene* scene, float deltaTime)
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 
-    // --- Handle mouse movement ---
     if (rightMousePressed)
     {
         double xpos, ypos;
@@ -233,8 +232,6 @@ int main()
 
     glfwSetWindowUserPointer(window, context);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    //glfwSetMouseButtonCallback(window, mouse_button_callback);
-    //glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
     FrameBuffer* frameBuffer = new FrameBuffer(800, 600);
@@ -262,15 +259,12 @@ int main()
     scene->AddRenderable(model3);
     models.push_back(model3);
 
-    // Setup GUI
     gui->SetModelList(&models);
     gui->SetScene(scene);
     gui->SetFrameBuffer(frameBuffer);
 
-    // Build Embree scene once
     scene->BuildEmbreeScene();
 
-    // Select the first model by default
     if (!models.empty())
     {
         gui->SelectModel(models[0]);

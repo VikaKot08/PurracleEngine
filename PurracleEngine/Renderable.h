@@ -22,6 +22,8 @@ public:
 	glm::vec3 rotation{ 0.0f };
 	glm::vec3 scale{ 1.0f };
 
+	glm::quat rotationQuat = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+
 	std::string name = "NoName";
 
 	glm::mat4 localTransform{ 1.0f };
@@ -38,5 +40,7 @@ public:
 	glm::mat4 GetMatrix() const;
 
 	void SetMatrix(const glm::mat4& matrix);
+
+	void SetRotationFromEuler(const glm::vec3& eulerDegrees);
 };
 

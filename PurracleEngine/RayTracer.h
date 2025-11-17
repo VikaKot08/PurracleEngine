@@ -12,7 +12,7 @@ public:
     ~RayTracer();
 
     void BuildScene(const std::vector<Model*>* models);
-    void UpdateTransforms();  // Fast update for transform changes
+    void UpdateTransforms();
     void Rebuild();
     Model* TraceRay(const glm::vec3& origin, const glm::vec3& direction);
     void Clear();
@@ -21,7 +21,7 @@ private:
     struct GeometryInfo {
         Model* model;
         uint32_t geomID;
-        RTCGeometry instance;  // Keep reference for updates
+        RTCGeometry instance;
     };
 
     RTCDevice device;

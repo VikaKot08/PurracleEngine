@@ -150,6 +150,20 @@ void GuiManager::SetFrameBuffer(FrameBuffer* fb)
     frameBuffer = fb;
 }
 
+void GuiManager::UpdateSelectedModelTransform()
+{
+    if (selectedModel)
+    {
+        selectedModel->position = positionVec;
+        selectedModel->SetRotationFromEuler(rotationVec); // Use new method
+        selectedModel->scale = scaleVec;
+
+        if (scene) {
+            scene->MarkDirty();
+        }
+    }
+}
+
 void GuiManager::SelectModel(Model* model)
 {
     selectedModel = model;
@@ -159,20 +173,6 @@ void GuiManager::SelectModel(Model* model)
         rotationVec = selectedModel->rotation;
         rotationVecInput = selectedModel->rotation;
         scaleVec = selectedModel->scale;
-    }
-}
-
-void GuiManager::UpdateSelectedModelTransform()
-{
-    if (selectedModel)
-    {
-        selectedModel->position = positionVec;
-        selectedModel->rotation = rotationVec;
-        selectedModel->scale = scaleVec;
-
-        if (scene) {
-            scene->MarkDirty();
-        }
     }
 }
 
@@ -407,7 +407,10 @@ void GuiManager::DrawTransformControls()
 
         if (ImGui::InputText("##ModelName", nameBuf, sizeof(nameBuf)))
         {
-            selectedModel->name = std::string(nameBuf);
+            if(!std::string(nameBuf).empty())
+            {
+                selectedModel->name = std::string(nameBuf);
+            }
         }
 
         ImGui::Spacing();
@@ -603,6 +606,8 @@ void GuiManager::Update(GLFWwindow* aWindow)
 
 
     if (ImGui::IsKeyPressed(ImGuiKey_T)) sGizmoOperation = ImGuizmo::TRANSLATE; 
+    if (ImGui::IsKeyPressed(ImGuiKey_R)) sGizmoOperation = ImGuizmo::ROTATE;
+    if (ImGui::IsKeyPressed(ImGuiKey_Y)) sGizmoOperation = ImGuizmo::SCALE;
 
 
     ImGui::Render();

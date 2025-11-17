@@ -9,7 +9,6 @@ void FlyingCamera::Update(glm::vec4 direction, float deltaTime)
 
     glm::vec3 pos = camera->GetPosition();
 
-    // Compute front vector from yaw/pitch
     glm::vec3 front;
     front.x = cos(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
     front.y = sin(glm::radians(camera->pitch));

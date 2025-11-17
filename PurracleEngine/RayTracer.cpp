@@ -58,20 +58,16 @@ void RayTracer::AddModelToScene(Model* model)
 {
     if (!model) return;
 
-    // Get mesh data from model
     std::vector<glm::vec3> localVertices;
     std::vector<unsigned int> localIndices;
 
-    // Extract vertices from all meshes
     for (Mesh* mesh : model->meshes) {
         size_t baseVertex = localVertices.size();
 
-        // Add vertices
         for (const Vertex& v : mesh->vertices) {
             localVertices.push_back(v.Position);
         }
 
-        // Add indices with offset
         for (unsigned int idx : mesh->indicies) {
             localIndices.push_back(static_cast<unsigned int>(baseVertex + idx));
         }
@@ -81,14 +77,11 @@ void RayTracer::AddModelToScene(Model* model)
         return;
     }
 
-    // Create instance geometry
     RTCGeometry instance = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_INSTANCE);
 
-    // Create base scene with local-space geometry
     RTCScene baseScene = rtcNewScene(device);
     RTCGeometry geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
 
-    // Set vertices (local space)
     float* vertices = (float*)rtcSetNewGeometryBuffer(
         geom, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3,
         3 * sizeof(float), localVertices.size()
@@ -100,7 +93,6 @@ void RayTracer::AddModelToScene(Model* model)
         vertices[i * 3 + 2] = localVertices[i].z;
     }
 
-    // Set indices
     size_t triangleCount = localIndices.size() / 3;
     uint32_t* indices = (uint32_t*)rtcSetNewGeometryBuffer(
         geom, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3,
@@ -113,27 +105,21 @@ void RayTracer::AddModelToScene(Model* model)
     rtcReleaseGeometry(geom);
     rtcCommitScene(baseScene);
 
-    // Set up instance
     rtcSetGeometryInstancedScene(instance, baseScene);
 
-    // Apply transform
     UpdateInstanceTransform(instance, model);
 
     rtcCommitGeometry(instance);
     uint32_t geomID = rtcAttachGeometry(rtcScene, instance);
 
-    // Store mapping
     geometryMap.push_back({ model, geomID, instance });
 
-    // Note: Don't release the instance yet - we need it for updates
 }
 
 void RayTracer::UpdateInstanceTransform(RTCGeometry instance, Model* model)
 {
     glm::mat4 transform = model->GetMatrix();
 
-    // Embree expects column-major matrices, GLM is column-major by default
-    // But we need to transpose for the way Embree interprets the data
     float transformMatrix[16];
     memcpy(transformMatrix, glm::value_ptr(glm::transpose(transform)), 16 * sizeof(float));
 
@@ -144,7 +130,6 @@ void RayTracer::UpdateTransforms()
 {
     if (!rtcScene || !modelList) return;
 
-    // Update each instance's transform
     for (auto& info : geometryMap) {
         if (info.model && info.instance) {
             UpdateInstanceTransform(info.instance, info.model);
@@ -152,7 +137,6 @@ void RayTracer::UpdateTransforms()
         }
     }
 
-    // Refit scene (much faster than full rebuild)
     rtcCommitScene(rtcScene);
 }
 
@@ -169,7 +153,6 @@ Model* RayTracer::TraceRay(const glm::vec3& origin, const glm::vec3& direction)
         return nullptr;
     }
 
-    // Initialize ray
     RTCRayHit rayhit;
     rayhit.ray.org_x = origin.x;
     rayhit.ray.org_y = origin.y;
@@ -177,21 +160,18 @@ Model* RayTracer::TraceRay(const glm::vec3& origin, const glm::vec3& direction)
     rayhit.ray.dir_x = direction.x;
     rayhit.ray.dir_y = direction.y;
     rayhit.ray.dir_z = direction.z;
-    rayhit.ray.tnear = 0.001f;  // Small offset to avoid self-intersection
+    rayhit.ray.tnear = 0.001f; 
     rayhit.ray.tfar = std::numeric_limits<float>::infinity();
     rayhit.ray.mask = 0xFFFFFFFF;
     rayhit.ray.flags = 0;
     rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
     rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-    // Perform intersection
     RTCIntersectArguments args;
     rtcInitIntersectArguments(&args);
     rtcIntersect1(rtcScene, &rayhit, &args);
 
-    // Check if we hit something
     if (rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID) {
-        // Find the corresponding model
         for (const auto& info : geometryMap) {
             if (info.geomID == rayhit.hit.geomID) {
                 std::cout << info.model << std::endl;

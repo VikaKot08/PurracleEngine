@@ -19,7 +19,6 @@ public:
     Camera* GetCamera() const { return mainCamera; }
     void UpdateFlyingCamera(glm::vec4 direction, float deltaTime);
 
-    // Embree ray tracing
     void BuildEmbreeScene();
     void UpdateEmbreeTransforms();
     Model* TraceRay(const glm::vec3& origin, const glm::vec3& direction);
