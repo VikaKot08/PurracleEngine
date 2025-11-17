@@ -36,7 +36,6 @@ public:
     void ChangeMesh(const std::string& meshPath);
     void ChangeTexture(const std::string& texturePath);
 
-
 private:
     std::vector<Model*>* modelList = nullptr;
     Scene* scene = nullptr;

@@ -9,6 +9,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <filesystem>
 #include <memory>
+#include <cstring>
 
 namespace fs = std::filesystem;
 
@@ -289,10 +290,9 @@ void GuiManager::UpdateFileNames()
     textureFilenames.clear();
     textureNames.clear();
 
-    meshFilenames.reserve(availableMeshes.size()); // prevent reallocations
+    meshFilenames.reserve(availableMeshes.size());
     meshNames.reserve(availableMeshes.size());
-    textureFilenames.reserve(availableTextures.size()); // prevent reallocations
-    textureNames.reserve(availableTextures.size());
+    textureFilenames.reserve(availableTextures.size());
 
     for (const auto& mesh : availableMeshes)
     {
@@ -333,7 +333,6 @@ void GuiManager::DrawModelNode(Renderable* model)
 
     bool opened = ImGui::TreeNodeEx((void*)model, flags, "%s", model->name.c_str());
 
-    // Drag source
     if (ImGui::BeginDragDropSource())
     {
         Renderable* payload = model;
@@ -342,7 +341,6 @@ void GuiManager::DrawModelNode(Renderable* model)
         ImGui::EndDragDropSource();
     }
 
-    // Drop target
     if (ImGui::BeginDragDropTarget())
     {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MODEL"))
@@ -403,6 +401,20 @@ void GuiManager::DrawTransformControls()
 
     if (selectedModel)
     {
+        ImGui::Text("Model Name");
+        char nameBuf[256];
+        strncpy_s(nameBuf, sizeof(nameBuf), selectedModel->name.c_str(), _TRUNCATE);
+
+        if (ImGui::InputText("##ModelName", nameBuf, sizeof(nameBuf)))
+        {
+            selectedModel->name = std::string(nameBuf);
+        }
+
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+
         ImGui::Text("Position");
         if (ImGui::InputFloat3("##Position", glm::value_ptr(positionVec)))
         {
@@ -438,7 +450,6 @@ void GuiManager::DrawTransformControls()
 
         ImGui::Spacing();
 
-        // Mesh dropdown
         ImGui::SeparatorText("Mesh");
 
         if (ImGui::Combo("##MeshType", &selectedModel->meshIndex, meshNames.data(), meshNames.size()))
@@ -449,7 +460,6 @@ void GuiManager::DrawTransformControls()
 
         ImGui::Spacing();
 
-        // Texture dropdown
         ImGui::SeparatorText("Texture");
    
         if (ImGui::Combo("##Texture", &selectedModel->textureIndex, textureNames.data(), textureNames.size()))
@@ -485,9 +495,8 @@ void GuiManager::ApplyGizmosAndTransform()
 
         glm::mat4 view = camera->GetView();
         glm::mat4 proj = camera->GetProjection();
-        glm::mat4 modelMatrix = selectedModel->GetMatrix();  // Get world matrix
+        glm::mat4 modelMatrix = selectedModel->GetMatrix(); 
 
-        // Use local mode if object has a parent, world mode otherwise
         ImGuizmo::MODE gizmoMode = selectedModel->parent ? ImGuizmo::LOCAL : ImGuizmo::WORLD;
 
         bool wasManipulated = ImGuizmo::Manipulate(
@@ -502,14 +511,11 @@ void GuiManager::ApplyGizmosAndTransform()
 
         if (wasManipulated && ImGuizmo::IsUsing())
         {
-            // Update the model's transform from the manipulated matrix
             selectedModel->SetMatrix(modelMatrix);
 
-            // Update GUI vectors
             positionVec = selectedModel->position;
             rotationVec = selectedModel->rotation;
 
-            // Normalize rotation display values to [0, 360) range
             auto normalizeAngle = [](float angle) -> float {
                 while (angle >= 360.0f) angle -= 360.0f;
                 while (angle < 0.0f) angle += 360.0f;

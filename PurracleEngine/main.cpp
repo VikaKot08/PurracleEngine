@@ -121,6 +121,12 @@ void processInput(GLFWwindow* window, Scene* scene, float deltaTime)
 
     glm::vec4 direction(0.0f);
 
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureKeyboard && io.WantTextInput)
+    {
+        return;
+    }
+
     //Forward/back
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         direction.z += 1.0f;
