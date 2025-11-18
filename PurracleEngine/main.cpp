@@ -237,9 +237,8 @@ int main()
     FrameBuffer* frameBuffer = new FrameBuffer(800, 600);
     std::vector<Model*> models;
 
-    // Create multiple models
-    Model* model1 = new Model("Assets/Models/Cube.obj", "Assets/Textures/Cube.png");
-    model1->scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    Model* model1 = new Model("Assets/Models/VikingHouse.obj", "Assets/Textures/VikingHouse.png");
+    model1->scale = glm::vec3(19.0f, 19.0f, 19.0f);
     model1->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     model1->position = glm::vec3(-3.0f, 0.0f, -6.0f);
     scene->AddRenderable(model1);
@@ -252,7 +251,7 @@ int main()
     scene->AddRenderable(model2);
     models.push_back(model2);
 
-    Model* model3 = new Model("Assets/Models/Cube.obj", "Assets/Textures/Cube.png");
+    Model* model3 = new Model("Assets/Models/CubePrimitive.obj", "Assets/Textures/PurpleLava.jpg");
     model3->scale = glm::vec3(1.0f, 1.0f, 1.0f);
     model3->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     model3->position = glm::vec3(3.0f, 0.0f, -6.0f);

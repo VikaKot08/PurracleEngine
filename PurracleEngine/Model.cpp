@@ -7,12 +7,18 @@
 #include <cfloat> 
 #include <algorithm>
 
+#include <fstream>
+#include <istream>
+#include <sstream>
+#include <map>
+
 Model::Model(const std::string& path, const char* pathTex)
 {
     meshIndex = 0;
     textureIndex = 0;
     myTexture = std::make_unique<Texture>(pathTex);
-	LoadModel(path);
+	//LoadModel(path);
+    OwnLoadOBJ(path);
 }
 
 Model::~Model()
@@ -63,14 +69,12 @@ void Model::LoadModelSimple(const std::string& path)
         {
             Vertex vertex;
 
-            // Position
             vertex.Position = glm::vec3(
                 mesh->mVertices[v].x,
                 mesh->mVertices[v].y,
                 mesh->mVertices[v].z
             );
 
-            // Normal
             if (mesh->HasNormals())
             {
                 vertex.Normal = glm::vec3(
@@ -216,7 +220,6 @@ void Model::LoadModel(const std::string& path)
                 vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
             }
 
-            // Texture coordinates
             if (mesh->mTextureCoords[0])
             {
                 vertex.TexCoords = glm::vec2(
@@ -243,4 +246,157 @@ void Model::LoadModel(const std::string& path)
 
         meshes.push_back(new Mesh(vertices, indices));
     }
+}
+
+void Model::OwnLoadOBJ(const std::string& path)
+{
+    std::ifstream file(path);
+    if (!file.is_open())
+    {
+        std::cerr << "Failed to open file: " << path << std::endl;
+        return;
+    }
+
+    std::vector<Position> temp_vertices;
+    std::vector<Position> temp_uvs;
+    std::vector<Position> temp_normals;
+
+    std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
+
+    std::string line;
+    while (std::getline(file, line))
+    {
+        std::istringstream iss(line);
+        std::string token;
+        iss >> token;
+
+        if (token == "v")
+        {
+            Position v;
+            iss >> v.x >> v.y >> v.z;
+            temp_vertices.push_back(v);
+        }
+        else if (token == "vt")
+        {
+            Position uv;
+            iss >> uv.x >> uv.y;
+            temp_uvs.push_back(uv);
+        }
+        else if (token == "vn")
+        {
+            Position n;
+            iss >> n.x >> n.y >> n.z;
+            temp_normals.push_back(n);
+        }
+        else if (token == "f")
+        {
+            std::string fd;
+            std::vector<unsigned int> vI, uvI, nI;
+
+            while (iss >> fd)
+            {
+                unsigned int v = 0, t = 0, n = 0;
+
+                // v/vt/vn
+                if (sscanf_s(fd.c_str(), "%u/%u/%u", &v, &t, &n) == 3)
+                {
+                    vI.push_back(v);
+                    uvI.push_back(t);
+                    nI.push_back(n);
+                }
+                // v//vn
+                else if (sscanf_s(fd.c_str(), "%u//%u", &v, &n) == 2)
+                {
+                    vI.push_back(v);
+                    uvI.push_back(0);
+                    nI.push_back(n);
+                }
+                // v/vt
+                else if (sscanf_s(fd.c_str(), "%u/%u", &v, &t) == 2)
+                {
+                    vI.push_back(v);
+                    uvI.push_back(t);
+                    nI.push_back(0);
+                }
+                // v only
+                else if (sscanf_s(fd.c_str(), "%u", &v) == 1)
+                {
+                    vI.push_back(v);
+                    uvI.push_back(0);
+                    nI.push_back(0);
+                }
+                else
+                {
+                    continue;
+                }
+            }
+
+            //Triangulation loop
+            for (size_t k = 1; k + 1 < vI.size(); k++)
+            {
+                unsigned int tri[3] = { 0, k, k + 1};
+
+                for (int s = 0; s < 3; s++)
+                {
+                    vertexIndices.push_back(vI[tri[s]]);
+                    uvIndices.push_back(uvI[tri[s]]);
+                    normalIndices.push_back(nI[tri[s]]);
+                }
+            }
+        }
+    }
+
+    file.close();
+
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+
+    for (unsigned int i = 0; i < vertexIndices.size(); i++)
+    {
+        Vertex vertex;
+
+        vertex.Position = glm::vec3{ temp_vertices[vertexIndices[i] - 1].x, temp_vertices[vertexIndices[i] - 1].y, temp_vertices[vertexIndices[i] - 1].z };
+
+        if (uvIndices[i] > 0) 
+        {
+            vertex.TexCoords = glm::vec2{
+                temp_uvs[uvIndices[i] - 1].x,
+                temp_uvs[uvIndices[i] - 1].y
+            };
+            vertex.TexCoords.y = 1.0f - vertex.TexCoords.y;
+        }
+        else
+        {
+            vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+        }
+
+        if (normalIndices[i] > 0) 
+        {
+            vertex.Normal = glm::vec3{
+                temp_normals[normalIndices[i] - 1].x,
+                temp_normals[normalIndices[i] - 1].y,
+                temp_normals[normalIndices[i] - 1].z
+            };
+        }
+        else
+        {
+            vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f); // default normal
+        }
+
+        vertices.push_back(vertex);
+        indices.push_back(i);
+    }
+
+    glm::vec3 minB(FLT_MAX), maxB(-FLT_MAX);
+    for (auto& v : vertices)
+    {
+        minB = glm::min(minB, v.Position);
+        maxB = glm::max(maxB, v.Position);
+    }
+
+    glm::vec3 center = (minB + maxB) * 0.5f;
+    for (auto& v : vertices)
+        v.Position -= center;
+
+    meshes.push_back(new Mesh(vertices, indices));
 }

@@ -4,6 +4,13 @@
 #include <iostream>
 #include <memory>
 
+struct Position
+{
+	float x;
+	float y;
+	float z = 0;
+};
+
 class Model : public Renderable
 {
 public:
@@ -18,6 +25,7 @@ public:
 	int textureIndex;
 
 	void LoadModel(const std::string& path);
+	void OwnLoadOBJ(const std::string& path);
 
 private:
 	void LoadModelSimple(const std::string& path);
