@@ -52,9 +52,14 @@ Scene::~Scene()
     delete mainCamera;
 }
 
-void Scene::AddRenderable(Renderable* renderable)
+Model* Scene::LoadModel(const std::string& aPath, const char* aPathTex)
 {
-    renderables.push_back(renderable);
+    return modelManager->LoadModel(aPath, aPathTex);
+}
+
+void Scene::AddRenderable(Model* aModel)
+{
+    renderables.push_back(aModel);
     sceneNeedsUpdate = true;
 }
 

@@ -12,11 +12,11 @@
 #include <sstream>
 #include <map>
 
-Model::Model(const std::string& aPath, const char* pathTex) : path(aPath)
+Model::Model(const std::string& aPath, const char* aPathTex) : path(aPath), pathTex(aPathTex)
 {
     meshIndex = 0;
     textureIndex = 0;
-    myTexture = std::make_unique<Texture>(pathTex);
+    myTexture = std::make_unique<Texture>(aPathTex);
     OwnLoadOBJ(aPath);
 }
 
@@ -245,6 +245,11 @@ void Model::LoadModel(const std::string& path)
 
         meshes.push_back(new Mesh(vertices, indices));
     }
+}
+
+void Model::LoadModel(const std::string& aPath, const char* pathTex)
+{
+
 }
 
 void Model::OwnLoadOBJ(const std::string& path)

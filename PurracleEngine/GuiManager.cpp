@@ -178,7 +178,7 @@ void GuiManager::SelectModel(Model* model)
 
 void GuiManager::AddModel()
 {
-    Model* newModel = new Model("Assets/Models/Cube.obj", "Assets/Textures/Cube.png");
+    Model* newModel = scene->LoadModel("Assets/Models/Cube.obj", "Assets/Textures/Cube.png");
     newModel->position = glm::vec3(0.0f, 0.0f, 0.0f);
     newModel->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     newModel->scale = glm::vec3(1.0f, 1.0f, 1.0f);

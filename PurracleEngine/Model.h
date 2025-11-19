@@ -24,6 +24,9 @@ public:
 	int meshIndex;
 	int textureIndex;
 	const std::string& path;
+	const char* pathTex;
+
+	void LoadModel(const std::string& aPath, const char* pathTex);
 
 	void LoadModel(const std::string& path);
 	void OwnLoadOBJ(const std::string& path);

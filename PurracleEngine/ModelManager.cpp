@@ -1,4 +1,5 @@
 #include "ModelManager.h"
+#include "Mesh.h"
 
 ModelManager* ModelManager::instance = nullptr;
 

@@ -2,6 +2,8 @@
 #include "Model.h"
 #include <vector>
 
+class Mesh;
+
 class ModelManager
 {
 public:

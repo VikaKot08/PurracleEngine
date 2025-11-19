@@ -14,7 +14,8 @@ public:
     Scene();
     ~Scene();
 
-    void AddRenderable(Renderable* renderable);
+    Model* LoadModel(const std::string& aPath, const char* aPathTex);
+    void AddRenderable(Model* aModel);
     void DeleteModel(Renderable* renderable);
     std::vector<Renderable*> GetRenderables() const { return renderables; }
     Camera* GetCamera() const { return mainCamera; }
