@@ -15,7 +15,7 @@ class Model : public Renderable
 {
 public:
 
-	Model(const std::string& path, const char* pathTex);
+	Model(const std::string& aPath, const char* pathTex);
 	~Model() override;
 	void Render(Shader* myShader) override;
 	std::vector<Mesh*> meshes;
@@ -23,6 +23,7 @@ public:
 	
 	int meshIndex;
 	int textureIndex;
+	const std::string& path;
 
 	void LoadModel(const std::string& path);
 	void OwnLoadOBJ(const std::string& path);

@@ -12,13 +12,12 @@
 #include <sstream>
 #include <map>
 
-Model::Model(const std::string& path, const char* pathTex)
+Model::Model(const std::string& aPath, const char* pathTex) : path(aPath)
 {
     meshIndex = 0;
     textureIndex = 0;
     myTexture = std::make_unique<Texture>(pathTex);
-	//LoadModel(path);
-    OwnLoadOBJ(path);
+    OwnLoadOBJ(aPath);
 }
 
 Model::~Model()

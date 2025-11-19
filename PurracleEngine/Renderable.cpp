@@ -5,7 +5,6 @@ glm::mat4 Renderable::GetMatrix() const
 {
     glm::mat4 localMatrix = localTransform;
 
-    // Build TRS using quaternion for rotation
     glm::mat4 trs = glm::translate(glm::mat4(1.0f), position);
     trs = trs * glm::mat4_cast(rotationQuat); // Use quaternion instead of euler
     trs = glm::scale(trs, scale);

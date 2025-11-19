@@ -6,6 +6,7 @@
 #include <vector>
 
 class Model;
+class ModelManager;
 
 class Scene
 {
@@ -23,6 +24,7 @@ public:
     void UpdateEmbreeTransforms();
     Model* TraceRay(const glm::vec3& origin, const glm::vec3& direction);
     void MarkDirty() { sceneNeedsUpdate = true; }
+    ModelManager* GetModelManager() { return modelManager; }
 
 
     std::vector<Renderable*> renderables;
@@ -32,13 +34,13 @@ private:
         Model* model;
         uint32_t geomID;
         RTCGeometry instance;
-        RTCScene baseScene;  // Store base scene for cleanup
+        RTCScene baseScene;
     };
 
     Camera* mainCamera;
     FlyingCamera* flyingCamera;
+    ModelManager* modelManager;
 
-    // Embree data
     RTCDevice embreeDevice;
     RTCScene embreeScene;
     std::vector<GeometryInfo> geometryMap;

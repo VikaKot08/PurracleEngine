@@ -16,7 +16,6 @@
 
 auto lastTime = std::chrono::high_resolution_clock::now();
 
-// Mouse state variables
 bool firstMouse = true;
 bool rightMousePressed = false;
 double lastX = 0.0;

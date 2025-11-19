@@ -1,5 +1,7 @@
 #include "Scene.h"
 #include "Model.h"
+
+#include "ModelManager.h"
 #include <cstring>
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
@@ -13,6 +15,9 @@ Scene::Scene()
     mainCamera = new Camera();
 
     flyingCamera = new FlyingCamera(mainCamera);
+
+    modelManager = new ModelManager();
+    modelManager->Allocate();
 
     embreeDevice = rtcNewDevice(nullptr);
     if (!embreeDevice) {
@@ -130,7 +135,6 @@ void Scene::AddModelToEmbreeScene(Model* model)
         vertices[i * 3 + 2] = localVertices[i].z;
     }
 
-    // Set indices
     size_t triangleCount = localIndices.size() / 3;
     uint32_t* indices = (uint32_t*)rtcSetNewGeometryBuffer(
         geom, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3,
