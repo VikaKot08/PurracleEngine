@@ -114,6 +114,15 @@
     <ClCompile Include="MeshManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EditorManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Message.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageQueue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imgui_impl_glfw.h">
@@ -204,6 +213,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MeshManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EditorManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Message.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -153,6 +153,7 @@
     <ClCompile Include="..\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="EditorManager.cpp" />
     <ClCompile Include="EngineContext.cpp" />
     <ClCompile Include="FlyingCamera.cpp" />
     <ClCompile Include="ForwardRenderer.cpp" />
@@ -164,6 +165,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="Message.cpp" />
+    <ClCompile Include="MessageQueue.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Renderable.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -187,6 +190,7 @@
     <ClInclude Include="..\imgui\imstb_truetype.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="EditorManager.h" />
     <ClInclude Include="EngineContext.h" />
     <ClInclude Include="FlyingCamera.h" />
     <ClInclude Include="ForwardRenderer.h" />
@@ -196,6 +200,8 @@
     <ClInclude Include="ImGuizmo.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="Message.h" />
+    <ClInclude Include="MessageQueue.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Renderable.h" />
     <ClInclude Include="Renderer.h" />
