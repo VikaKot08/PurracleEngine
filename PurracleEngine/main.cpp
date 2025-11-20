@@ -12,6 +12,8 @@
 #include "GuiManager.h"
 #include "FrameBuffer.h"
 
+#include "MeshManager.h"
+
 #include <chrono>
 
 auto lastTime = std::chrono::high_resolution_clock::now();
@@ -224,6 +226,8 @@ int main()
         glfwTerminate();
         return -1;
     }
+
+    MeshManager::Allocate();
 
     Scene* scene = new Scene();
     ForwardRenderer* renderer = new ForwardRenderer();

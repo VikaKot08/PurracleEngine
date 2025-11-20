@@ -18,20 +18,14 @@ public:
 	Model(const std::string& aPath, const char* pathTex);
 	~Model() override;
 	void Render(Shader* myShader) override;
-	std::vector<Mesh*> meshes;
+	void ChangeMesh(const std::string& newPath);
+
+	std::vector<Mesh*>* meshes;
 	std::unique_ptr<Texture> myTexture;
 	
 	int meshIndex;
 	int textureIndex;
-	const std::string& path;
+	std::string path;
 	const char* pathTex;
-
-	void LoadModel(const std::string& aPath, const char* pathTex);
-
-	void LoadModel(const std::string& path);
-	void OwnLoadOBJ(const std::string& path);
-
-private:
-	void LoadModelSimple(const std::string& path);
 };
 

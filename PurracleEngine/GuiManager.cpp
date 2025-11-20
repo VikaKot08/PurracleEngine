@@ -155,7 +155,7 @@ void GuiManager::UpdateSelectedModelTransform()
     if (selectedModel)
     {
         selectedModel->position = positionVec;
-        selectedModel->SetRotationFromEuler(rotationVec); // Use new method
+        selectedModel->SetRotationFromEuler(rotationVec);
         selectedModel->scale = scaleVec;
 
         if (scene) {
@@ -216,19 +216,7 @@ void GuiManager::ChangeMesh(const std::string& meshPath)
     if (!selectedModel)
         return;
 
-    glm::vec3 pos = selectedModel->position;
-    glm::vec3 rot = selectedModel->rotation;
-    glm::vec3 scl = selectedModel->scale;
-
-    for (auto mesh : selectedModel->meshes)
-        delete mesh;
-    selectedModel->meshes.clear();
-
-    selectedModel->LoadModel(meshPath);
-
-    selectedModel->position = pos;
-    selectedModel->rotation = rot;
-    selectedModel->scale = scl;
+    selectedModel->ChangeMesh(meshPath);
 
     if (scene)
     {

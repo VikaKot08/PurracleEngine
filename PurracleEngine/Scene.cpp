@@ -1,10 +1,10 @@
 #include "Scene.h"
 #include "Model.h"
-
-#include "ModelManager.h"
 #include <cstring>
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "MeshManager.h"
 
 Scene::Scene()
     : mainCamera(nullptr)
@@ -16,9 +16,6 @@ Scene::Scene()
 
     flyingCamera = new FlyingCamera(mainCamera);
 
-    modelManager = new ModelManager();
-    modelManager->Allocate();
-
     embreeDevice = rtcNewDevice(nullptr);
     if (!embreeDevice) {
         std::cerr << "Failed to create Embree device" << std::endl;
@@ -28,6 +25,12 @@ Scene::Scene()
 void Scene::UpdateFlyingCamera(glm::vec4 direction, float deltaTime)
 {
     flyingCamera->Update(direction, deltaTime);
+}
+
+Model* Scene::LoadModel(const std::string& aPath, const char* aPathTex)
+{
+    Model* model = new Model(aPath, aPathTex);
+    return model;
 }
 
 void Scene::DeleteModel(Renderable* model)
@@ -49,12 +52,10 @@ Scene::~Scene()
         rtcReleaseDevice(embreeDevice);
     }
 
-    delete mainCamera;
-}
+    MeshManager::Deallocate();
 
-Model* Scene::LoadModel(const std::string& aPath, const char* aPathTex)
-{
-    return modelManager->LoadModel(aPath, aPathTex);
+    delete mainCamera;
+    delete flyingCamera;
 }
 
 void Scene::AddRenderable(Model* aModel)
@@ -106,12 +107,12 @@ void Scene::BuildEmbreeScene()
 
 void Scene::AddModelToEmbreeScene(Model* model)
 {
-    if (!model || !embreeDevice) return;
+    if (!model || !embreeDevice || !model->meshes) return; 
 
     std::vector<glm::vec3> localVertices;
     std::vector<unsigned int> localIndices;
 
-    for (Mesh* mesh : model->meshes) {
+    for (Mesh* mesh : *model->meshes) { 
         size_t baseVertex = localVertices.size();
 
         for (const Vertex& v : mesh->vertices) {
