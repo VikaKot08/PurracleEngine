@@ -1,5 +1,6 @@
 #include "EditorManager.h"
 #include "Model.h"
+#include "Message.h"
 
 void EditorManager::ChangeMesh(Model* aModel, const std::string& meshPath)
 {
@@ -21,4 +22,10 @@ void EditorManager::UpdateTransform(Model* aModel, glm::vec3 positionVec, glm::v
 void EditorManager::UpdateTransformMatrix(Model* aModel, glm::mat4 aMatrix)
 {
 	aModel->SetMatrix(aMatrix);
+}
+
+void EditorManager::ProcessMessage(Message* aMsg)
+{
+	std::string& msg = aMsg->msg;
+	
 }

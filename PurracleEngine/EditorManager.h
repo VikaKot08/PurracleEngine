@@ -2,7 +2,9 @@
 #include <string>
 #include <glm/glm.hpp>
 
+
 class Model;
+class Message;
 
 class EditorManager
 {
@@ -11,6 +13,8 @@ public:
 	void ChangeTexture(Model* aModel, const std::string& texturePath);
 	void UpdateTransform(Model* aModel, glm::vec3 positionVec, glm::vec3 rotationVec, glm::vec3 scaleVec);
 	void UpdateTransformMatrix(Model* aModel, glm::mat4 aMatrix);
+
+	void ProcessMessage(Message* aMsg);
 
 };
 
