@@ -12,6 +12,7 @@ class Camera;
 class FrameBuffer;
 class Scene;
 class Renderable;
+class EditorManager;
 
 class GuiManager
 {
@@ -24,6 +25,7 @@ public:
     void SetModelList(std::vector<Model*>* models);
     void SetScene(Scene* scn);
     void SetFrameBuffer(FrameBuffer* fb);
+    void SetEditorManager(EditorManager* em);
 
     void SelectModel(Model* model);
 
@@ -38,6 +40,7 @@ public:
 
 private:
     std::vector<Model*>* modelList = nullptr;
+    EditorManager* editorManager;
     Scene* scene = nullptr;
     Camera* camera = nullptr;
     FrameBuffer* frameBuffer = nullptr;

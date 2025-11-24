@@ -2,8 +2,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "Triangle.h"
-#include "Cube.h"
 #include "Model.h"
 #include "Shader.h"
 
@@ -13,6 +11,7 @@
 #include "FrameBuffer.h"
 
 #include "MeshManager.h"
+#include "EditorManager.h"
 
 #include <chrono>
 
@@ -228,6 +227,10 @@ int main()
     }
 
     MeshManager::Allocate();
+    MeshManager* meshManager = MeshManager::Get();
+
+    EditorManager* editorManager = new EditorManager();
+    editorManager->SetMeshManager(meshManager);
 
     Scene* scene = new Scene();
     ForwardRenderer* renderer = new ForwardRenderer();
@@ -265,6 +268,7 @@ int main()
     gui->SetModelList(&models);
     gui->SetScene(scene);
     gui->SetFrameBuffer(frameBuffer);
+    gui->SetEditorManager(editorManager);
 
     scene->BuildEmbreeScene();
 
@@ -324,6 +328,10 @@ int main()
     delete context;
     delete renderer;
     delete scene;
+
+    delete editorManager;
+    MeshManager::Deallocate();
+
     delete gui;
     glfwDestroyWindow(window);
     glfwTerminate();

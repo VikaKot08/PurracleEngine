@@ -1,36 +1,42 @@
 #pragma once
-#include <vector>
+#include "MessageQueue.h"
 #include <string>
-#include <map>
+#include <vector>
+#include <unordered_map>
 
 class Mesh;
+class MessageQueue;
 
 struct MeshData
 {
-    std::string path;
-    std::vector<Mesh*> meshes;
-    int refCount = 0;
+	std::string path;
+	std::vector<Mesh*> meshes;
+	int refCount = 0;
 };
 
-class MeshManager
+class MeshManager : public MessageQueue
 {
-private:
-    static MeshManager* instance;
-    std::map<std::string, MeshData> meshCache;
-
-    MeshManager();
-    ~MeshManager();
-
 public:
-    static void Allocate();
-    static void Deallocate();
-    static MeshManager* Get();
+	MeshManager();
+	~MeshManager();
 
-    std::vector<Mesh*>* LoadMeshesAssimp(const std::string& path);
+	static void Allocate();
+	static void Deallocate();
+	static MeshManager* Get();
 
-    std::vector<Mesh*>* LoadMeshes(const std::string& path);
+	std::vector<Mesh*>* LoadMeshesAssimp(const std::string& path);
+	std::vector<Mesh*>* LoadMeshes(const std::string& path);
+	void ReleaseMeshes(const std::string& path);
+	void ClearCache();
 
-    void ReleaseMeshes(const std::string& path);
+	void SetReplyQueue(MessageQueue* replyQueue);
 
-    void ClearCache();
+protected:
+	void ProcessMessage(Message* aMessage) override;
+
+private:
+	static MeshManager* instance;
+	std::unordered_map<std::string, MeshData> meshCache;
+	MessageQueue* replyQueue;
+	int nextRequestId;
 };

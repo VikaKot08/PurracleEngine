@@ -2,6 +2,7 @@
 #include "Model.h"
 #include "Camera.h"
 #include "FrameBuffer.h"
+#include "EditorManager.h"
 #include "Scene.h"
 #include <stb_image.h>
 #include "ImGuizmo.h"
@@ -145,6 +146,11 @@ void GuiManager::SetScene(Scene* scn)
     camera = scn->GetCamera();
 }
 
+void GuiManager::SetEditorManager(EditorManager* em)
+{
+    editorManager = em;
+}
+
 void GuiManager::SetFrameBuffer(FrameBuffer* fb)
 {
     frameBuffer = fb;
@@ -216,12 +222,8 @@ void GuiManager::ChangeMesh(const std::string& meshPath)
     if (!selectedModel)
         return;
 
-    selectedModel->ChangeMesh(meshPath);
-
-    if (scene)
-    {
-        scene->BuildEmbreeScene();
-    }
+    editorManager->RequestLoadMesh(meshPath);
+    editorManager->ChangeMesh(selectedModel, meshPath);
 }
 
 void GuiManager::ChangeTexture(const std::string& texturePath)
@@ -229,7 +231,7 @@ void GuiManager::ChangeTexture(const std::string& texturePath)
     if (!selectedModel)
         return;
 
-    selectedModel->myTexture = std::make_unique<Texture>(texturePath.c_str());
+    editorManager->ChangeTexture(selectedModel, texturePath);
     
 }
 
@@ -556,6 +558,8 @@ void GuiManager::DrawViewport()
 
 void GuiManager::Update(GLFWwindow* aWindow)
 {
+    editorManager->Update();
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();

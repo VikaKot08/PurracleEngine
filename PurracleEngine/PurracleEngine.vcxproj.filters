@@ -123,6 +123,12 @@
     <ClCompile Include="MessageQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LoadMeshMessage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLoadedMessage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imgui_impl_glfw.h">
@@ -222,6 +228,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MessageQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadMeshMessage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLoadedMessage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

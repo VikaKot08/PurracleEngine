@@ -1,16 +1,25 @@
 #pragma once
-#include <vector>
+#include <queue>
+#include <mutex>
+
 class Message;
 
 class MessageQueue
 {
 public:
+	MessageQueue();
+	virtual ~MessageQueue();
+
 	void QueueMessage(Message* message);
+	void ProcessMessages();
+	bool HasMessages() const;
+	void Clear();
+
+protected:
+	virtual void ProcessMessage(Message* aMessage);
 
 private:
-	void ProcessMessages();
-	void ProcessMessage(Message* aMessage);
-
-	std::vector<Message*> messages;
+	std::queue<Message*> messages;
+	mutable std::mutex queueMutex;
 };
 

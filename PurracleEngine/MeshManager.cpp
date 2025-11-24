@@ -1,5 +1,10 @@
 #include "MeshManager.h"
 #include "Mesh.h"
+#include "Message.h"
+#include "MessageQueue.h"
+#include "MeshLoadedMessage.h"
+#include "LoadMeshMessage.h"
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -336,4 +341,41 @@ std::vector<Mesh*>* MeshManager::LoadMeshes(const std::string& path)
 
     meshCache[path] = meshData;
     return &meshCache[path].meshes;
+}
+
+void MeshManager::SetReplyQueue(MessageQueue* replyQueue)
+{
+    this->replyQueue = replyQueue;
+}
+
+void MeshManager::ProcessMessage(Message* aMessage)
+{
+    if (aMessage->type == MessageType::LoadMesh)
+    {
+        LoadMeshMessage* loadMsg = static_cast<LoadMeshMessage*>(aMessage);
+        std::cout << "MeshManager: Received LoadMesh request for: " << loadMsg->msg << std::endl;
+
+        std::vector<Mesh*>* meshes = LoadMeshesAssimp(loadMsg->msg);
+
+        if (replyQueue != nullptr)
+        {
+            if (meshes != nullptr)
+            {
+                std::cout << "MeshManager: Successfully loaded mesh, sending MeshLoaded message" << std::endl;
+                MeshLoadedMessage* response = new MeshLoadedMessage(loadMsg->msg, true, loadMsg->requestId);
+                replyQueue->QueueMessage(response);
+            }
+            else
+            {
+                std::cout << "MeshManager: Failed to load mesh, sending failure message" << std::endl;
+                MeshLoadedMessage* response = new MeshLoadedMessage(loadMsg->msg, false, loadMsg->requestId);
+                response->errorMessage = "Failed to load mesh from path: " + loadMsg->msg;
+                replyQueue->QueueMessage(response);
+            }
+        }
+    }
+    else
+    {
+        MessageQueue::ProcessMessage(aMessage);
+    }
 }
