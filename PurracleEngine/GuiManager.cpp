@@ -122,6 +122,8 @@ void GuiManager::Start(GLFWwindow* aWindow)
 
     ImGui_ImplGlfw_InitForOpenGL(aWindow, true);
     ImGui_ImplOpenGL3_Init();
+    UpdateFileNames();
+    RefreshAssets();
 }
 
 void GuiManager::SetIcon(GLFWwindow* aWindow)
@@ -273,6 +275,61 @@ void GuiManager::HandleMouseClick(GLFWwindow* window)
     }
 }
 
+void GuiManager::RefreshAssets()
+{
+    availableMeshes.clear();
+    availableTextures.clear();
+
+    const std::string meshDir = "Assets/Models";
+    const std::string textureDir = "Assets/Textures";
+
+    const std::vector<std::string> meshExtensions = {
+        ".obj", ".fbx", ".gltf", ".glb", ".dae", ".blend", ".3ds", ".ply"
+    };
+
+    const std::vector<std::string> textureExtensions = {
+        ".png", ".jpg", ".jpeg", ".bmp", ".tga", ".dds", ".hdr"
+    };
+    if (std::filesystem::exists(meshDir) && std::filesystem::is_directory(meshDir))
+    {
+        for (const auto& entry : std::filesystem::directory_iterator(meshDir))
+        {
+            if (entry.is_regular_file())
+            {
+                std::string ext = entry.path().extension().string();
+                std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
+                if (std::find(meshExtensions.begin(), meshExtensions.end(), ext) != meshExtensions.end())
+                {
+                    availableMeshes.push_back(entry.path().string());
+                }
+            }
+        }
+    }
+    if (std::filesystem::exists(textureDir) && std::filesystem::is_directory(textureDir))
+    {
+        for (const auto& entry : std::filesystem::directory_iterator(textureDir))
+        {
+            if (entry.is_regular_file())
+            {
+                std::string ext = entry.path().extension().string();
+                std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
+                if (std::find(textureExtensions.begin(), textureExtensions.end(), ext) != textureExtensions.end())
+                {
+                    availableTextures.push_back(entry.path().string());
+                }
+            }
+        }
+    }
+
+    std::sort(availableMeshes.begin(), availableMeshes.end());
+    std::sort(availableTextures.begin(), availableTextures.end());
+
+    UpdateFileNames();
+    UpdateModelIndices();
+}
+
 void GuiManager::UpdateFileNames()
 {
     meshFilenames.clear();
@@ -307,6 +364,52 @@ void GuiManager::UpdateFileNames()
 
         textureFilenames.push_back(filename);
         textureNames.push_back(textureFilenames.back().c_str());
+    }
+}
+
+int GuiManager::FindMeshIndex(const std::string& meshPath)
+{
+    std::string normalizedSearch = meshPath;
+    std::replace(normalizedSearch.begin(), normalizedSearch.end(), '\\', '/');
+
+    for (size_t i = 0; i < availableMeshes.size(); i++)
+    {
+        std::string normalizedAvailable = availableMeshes[i];
+        std::replace(normalizedAvailable.begin(), normalizedAvailable.end(), '\\', '/');
+
+        if (normalizedAvailable == normalizedSearch)
+            return static_cast<int>(i);
+    }
+    return 0;
+}
+
+int GuiManager::FindTextureIndex(const std::string& texturePath)
+{
+    std::string normalizedSearch = texturePath;
+    std::replace(normalizedSearch.begin(), normalizedSearch.end(), '\\', '/');
+
+    for (size_t i = 0; i < availableTextures.size(); i++)
+    {
+        std::string normalizedAvailable = availableTextures[i];
+        std::replace(normalizedAvailable.begin(), normalizedAvailable.end(), '\\', '/');
+
+        if (normalizedAvailable == normalizedSearch)
+            return static_cast<int>(i);
+    }
+    return 0;
+}
+
+void GuiManager::UpdateModelIndices()
+{
+    if (!modelList) return;
+
+    for (Model* model : *modelList)
+    {
+        if (!model) continue;
+
+        model->meshIndex = FindMeshIndex(model->path);
+
+        model->textureIndex = FindTextureIndex(model->myTexture ->path);
     }
 }
 
@@ -369,6 +472,11 @@ void GuiManager::DrawSceneHierarchy()
     if (ImGui::Button("Add Model", ImVec2(-1, 0)))
     {
         AddModel();
+    }
+
+    if (ImGui::Button("Refresh Assets", ImVec2(-1, 0)))
+    {
+        RefreshAssets();
     }
 
     ImGui::Separator();

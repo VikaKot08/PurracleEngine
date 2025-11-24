@@ -18,7 +18,6 @@ void EditorManager::SetMeshManager(MeshManager* meshManager)
 {
 	this->meshManager = meshManager;
 
-	// Set this EditorManager as the reply queue for the MeshManager
 	if (meshManager != nullptr)
 	{
 		meshManager->SetReplyQueue(this);

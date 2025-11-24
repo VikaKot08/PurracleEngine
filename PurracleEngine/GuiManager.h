@@ -38,6 +38,13 @@ public:
     void ChangeMesh(const std::string& meshPath);
     void ChangeTexture(const std::string& texturePath);
 
+    std::vector<Model*>* GetModelList() { return modelList; }
+    int FindMeshIndex(const std::string& meshPath);
+    int FindTextureIndex(const std::string& meshPath);
+    void UpdateModelIndices();
+
+    void RefreshAssets();
+
 private:
     std::vector<Model*>* modelList = nullptr;
     EditorManager* editorManager;

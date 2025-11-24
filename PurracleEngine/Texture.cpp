@@ -40,6 +40,7 @@ Texture::Texture(const char* aPath)
 	}
 
 	stbi_image_free(data);
+	path = aPath;
 }
 
 void Texture::Bind(unsigned int slot = 0) const

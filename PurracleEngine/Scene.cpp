@@ -22,6 +22,29 @@ Scene::Scene()
     }
 }
 
+void Scene::InitializeDefaultModels()
+{
+    Model* model1 = LoadModel("Assets/Models/VikingHouse.obj", "Assets/Textures/VikingHouse.png");
+    model1->scale = glm::vec3(19.0f, 19.0f, 19.0f);
+    model1->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    model1->position = glm::vec3(-3.0f, 0.0f, -6.0f);
+    AddRenderable(model1);
+
+    Model* model2 = LoadModel("Assets/Models/Cube.obj", "Assets/Textures/Cube.png");
+    model2->scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    model2->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    model2->position = glm::vec3(0.0f, 0.0f, -6.0f);
+    AddRenderable(model2);
+
+    Model* model3 = LoadModel("Assets/Models/CubePrimitive.obj", "Assets/Textures/PurpleLava.jpg");
+    model3->scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    model3->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    model3->position = glm::vec3(3.0f, 0.0f, -6.0f);
+    AddRenderable(model3);
+
+    BuildEmbreeScene();
+}
+
 void Scene::UpdateFlyingCamera(glm::vec4 direction, float deltaTime)
 {
     flyingCamera->Update(direction, deltaTime);

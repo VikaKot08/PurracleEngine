@@ -24,6 +24,7 @@ public:
     void UpdateEmbreeTransforms();
     Model* TraceRay(const glm::vec3& origin, const glm::vec3& direction);
     void MarkDirty() { sceneNeedsUpdate = true; }
+    void InitializeDefaultModels();
 
 
     std::vector<Renderable*> renderables;
