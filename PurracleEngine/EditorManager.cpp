@@ -46,13 +46,13 @@ void EditorManager::UpdateTransformMatrix(Model* aModel, glm::mat4 aMatrix)
 	aModel->SetMatrix(aMatrix);
 }
 
-void EditorManager::RequestLoadMesh(const std::string& meshPath)
+void EditorManager::RequestLoadMesh(Model* aModel, const std::string& meshPath)
 {
 	if (meshManager != nullptr)
 	{
 		std::cout << "EditorManager: Sending LoadMesh request for: " << meshPath << std::endl;
 
-		LoadMeshMessage* loadMsg = new LoadMeshMessage(meshPath, nextRequestId++);
+		LoadMeshMessage* loadMsg = new LoadMeshMessage(aModel, meshPath, nextRequestId++);
 		meshManager->QueueMessage(loadMsg);
 	}
 	else
@@ -80,6 +80,7 @@ void EditorManager::ProcessMessage(Message* aMessage)
 		{
 			std::cout << "EditorManager: Received MeshLoaded confirmation for: "
 				<< loadedMsg->msg << " (Request ID: " << loadedMsg->requestId << ")" << std::endl;
+			ChangeMesh(loadedMsg->model, loadedMsg->msg);
 		}
 		else
 		{
@@ -95,7 +96,7 @@ void EditorManager::ProcessMessage(Message* aMessage)
 
 		switch (aMessage->type)
 		{
-		case MessageType::String:
+		case MessageType::Memory:
 			std::cout << "EditorManager: Received string message: " << msg << std::endl;
 			break;
 

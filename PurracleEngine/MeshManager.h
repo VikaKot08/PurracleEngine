@@ -25,6 +25,7 @@ public:
 	static MeshManager* Get();
 
 	std::vector<Mesh*>* LoadMeshesAssimp(const std::string& path);
+	std::vector<Mesh*>* LoadMeshes(const std::string& path, int msgId);
 	std::vector<Mesh*>* LoadMeshes(const std::string& path);
 	void ReleaseMeshes(const std::string& path);
 	void ClearCache();
@@ -35,6 +36,7 @@ protected:
 	void ProcessMessage(Message* aMessage) override;
 
 private:
+	bool CheckMemory(int msgId);
 	static MeshManager* instance;
 	std::unordered_map<std::string, MeshData> meshCache;
 	MessageQueue* replyQueue;

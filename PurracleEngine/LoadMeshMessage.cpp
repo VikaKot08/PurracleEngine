@@ -1,6 +1,6 @@
 #include "LoadMeshMessage.h"
+#include "Model.h"
 
-LoadMeshMessage::LoadMeshMessage(const std::string& meshPath, int requestId)
-	: Message(MessageType::LoadMesh, meshPath), requestId(requestId)
+LoadMeshMessage::LoadMeshMessage(Model* aModel, const std::string& meshPath, int requestId): Message(MessageType::LoadMesh, meshPath), model(aModel), requestId(requestId)
 {
 }

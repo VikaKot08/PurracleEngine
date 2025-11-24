@@ -224,8 +224,7 @@ void GuiManager::ChangeMesh(const std::string& meshPath)
     if (!selectedModel)
         return;
 
-    editorManager->RequestLoadMesh(meshPath);
-    editorManager->ChangeMesh(selectedModel, meshPath);
+    editorManager->RequestLoadMesh(selectedModel, meshPath);
 }
 
 void GuiManager::ChangeTexture(const std::string& texturePath)

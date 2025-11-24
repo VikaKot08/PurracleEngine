@@ -18,7 +18,7 @@ public:
 	void UpdateTransform(Model* aModel, glm::vec3 positionVec, glm::vec3 rotationVec, glm::vec3 scaleVec);
 	void UpdateTransformMatrix(Model* aModel, glm::mat4 aMatrix);
 
-	void RequestLoadMesh(const std::string& meshPath);
+	void RequestLoadMesh(Model* aModel, const std::string& meshPath);
 	void SetMeshManager(MeshManager* meshManager);
 
 	void Update();

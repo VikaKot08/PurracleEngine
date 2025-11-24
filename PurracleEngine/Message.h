@@ -3,12 +3,9 @@
 
 enum MessageType
 {
-	String,
-	Mouse,
-	FloatMessage,
-	Raycast,
 	LoadMesh,
-	MeshLoaded
+	MeshLoaded,
+	Memory
 };
 class Message
 {
