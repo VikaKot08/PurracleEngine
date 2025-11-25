@@ -17,6 +17,7 @@
 #include <fstream>
 #include <istream>
 #include <sstream>
+#include <filesystem>
 
 MeshManager* MeshManager::instance = nullptr;
 
@@ -580,4 +581,116 @@ void MeshManager::ProcessMessage(Message* aMessage)
     {
         MessageQueue::ProcessMessage(aMessage);
     }
+}
+
+void MeshManager::Serialize(const std::string& path, const std::vector<Mesh*>& meshes)
+{
+    std::string optimizedPath = GetOptimizedPath(path);
+
+    std::fstream file;
+    file.open(optimizedPath, std::ios_base::out | std::ios_base::binary);
+    //Write meta-data
+    // Write number of meshes
+    int numMeshes = static_cast<int>(meshes.size());
+    file.write(reinterpret_cast<const char*>(&numMeshes), sizeof(int));
+
+    for (Mesh* mesh : meshes)
+    {
+        const std::vector<Vertex>& vertices = mesh->vertices;
+        const std::vector<unsigned int>& indices = mesh->indicies;
+
+        int numVertices = static_cast<int>(vertices.size());
+        file.write((char*)&numVertices, sizeof(int));
+
+        int numIndices = static_cast<int>(indices.size());
+        file.write((char*)&numIndices, sizeof(int));
+
+        // Write vertex data
+        for (const Vertex& v : vertices)
+        {
+            file.write((char*)&v.Position, sizeof(glm::vec3));
+            file.write((char*)&v.Normal, sizeof(glm::vec3));
+            file.write((char*)&v.TexCoords, sizeof(glm::vec2));
+        }
+
+        // Write index data
+        //for (const unsigned int& i : indices)
+        //{
+            //file.write((char*)&i, sizeof(unsigned int));
+        //}
+        file.write((char*)indices.data(), numIndices * sizeof(unsigned int));
+    }
+    file.close();
+}
+
+std::vector<Mesh*>* MeshManager::Deserialize(const std::string& path)
+{
+    std::string optimizedPath = GetOptimizedPath(path);
+    
+    std::fstream file;
+    file.open(optimizedPath, std::ios_base::in | std::ios_base::binary);
+    //Read meta data
+    int numMeshes = 0;
+    file.read((char*)&numMeshes, sizeof(int));
+
+    if (numMeshes <= 0 || numMeshes > 50000)
+    {
+        std::cerr << "Invalid file: " << numMeshes << std::endl;
+        file.close();
+        return nullptr;
+    }
+
+    MeshData meshData;
+    meshData.path = path;
+    meshData.refCount = 1;
+
+    for(int i = 0; i < numMeshes; ++i)
+    {
+        int numVertices = 0;
+        int numIndices = 0;
+
+        file.read((char*)&numVertices, sizeof(int));
+        file.read((char*)&numIndices, sizeof(int));
+
+        if (numVertices <= 0 || numVertices > 50000000 || numIndices <= 0 || numIndices > 50000000)
+        {
+            std::cerr << "Invalid file: Vertices: " << numVertices << " Indices: " << numIndices << std::endl;
+            file.close();
+            return nullptr;
+        }
+
+        std::vector<Vertex> vertices(numVertices);
+        std::vector<unsigned int> indices(numIndices);
+
+        //Read vertices
+        for (int i = 0; i < numVertices; ++i)
+        {
+            file.read((char*)&vertices[i].Position, sizeof(glm::vec3));
+            file.read((char*)&vertices[i].Normal, sizeof(glm::vec3));
+            file.read((char*)&vertices[i].TexCoords, sizeof(glm::vec2));
+        }
+
+        //Read indices
+        //for (int i = 0; i < numIndices; ++i)
+        //{
+            //file.read((char*)&indices[i], sizeof(unsigned int));
+        //}
+        file.read((char*)indices.data(), numIndices * sizeof(unsigned int));
+
+        meshData.meshes.push_back(new Mesh(vertices, indices));
+    }
+
+    file.close();
+
+    meshCache[path] = meshData;
+
+    return &meshCache[path].meshes;
+}
+
+std::string MeshManager::GetOptimizedPath(const std::string& originalPath)
+{
+    std::filesystem::path p(originalPath);
+    std::filesystem::path optimized = p;
+    optimized.replace_extension(".opt");
+    return optimized.string();
 }

@@ -24,6 +24,10 @@ public:
 	static void Deallocate();
 	static MeshManager* Get();
 
+	std::vector<Mesh*>* Deserialize(const std::string& path);
+	void Serialize(const std::string& path, const std::vector<Mesh*>& meshes);
+	std::string GetOptimizedPath(const std::string& originalPath);
+
 	std::vector<Mesh*>* LoadMeshesAssimp(const std::string& path);
 	std::vector<Mesh*>* LoadMeshes(const std::string& path, int msgId);
 	std::vector<Mesh*>* LoadMeshes(const std::string& path);
