@@ -6,12 +6,15 @@
 
 class Model;
 class MeshManager;
+class GuiManager;
 
 class EditorManager : public MessageQueue
 {
 public:
 	EditorManager();
 	~EditorManager();
+
+	void SetGuiManager(GuiManager* guiManager);
 
 	void ChangeMesh(Model* aModel, const std::string& meshPath);
 	void ChangeTexture(Model* aModel, const std::string& texturePath);
@@ -28,6 +31,7 @@ protected:
 
 private:
 	MeshManager* meshManager;
+	GuiManager* guiManager;
 	int nextRequestId;
 };
 

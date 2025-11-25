@@ -6,6 +6,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "MessageQueue.h"
 
 class Model;
 class Camera;
@@ -14,7 +15,7 @@ class Scene;
 class Renderable;
 class EditorManager;
 
-class GuiManager
+class GuiManager : public MessageQueue
 {
 public:
     void Start(GLFWwindow* aWindow);
@@ -44,6 +45,10 @@ public:
     void UpdateModelIndices();
 
     void RefreshAssets();
+
+    bool showPopup = false;
+    std::string popupTitle = "";
+    std::string popupMessage = "";
 
 private:
     std::vector<Model*>* modelList = nullptr;
@@ -86,4 +91,8 @@ private:
 
     int selectedMeshIndex = 0;
     int selectedTextureIndex = 0;
+
+    void ProcessMessage(Message* aMessage) override;
+    void ShowPopup(const std::string& title, const std::string& message);
+    void DrawPopup();
 };

@@ -199,11 +199,39 @@ bool MeshManager::CheckMemory(int msgId)
     GlobalMemoryStatusEx(&statex);
     DWORDLONG physMemory = statex.ullAvailPhys / (1024 * 1024);
     DWORDLONG virMemory = statex.ullAvailVirtual / (1024 * 1024);
-    std::cout << physMemory << " MB of physical memory" << std::endl;
-    std::cout << virMemory / (1024 * 1024) << " MB of virtual memory" << std::endl;
 
-    MemoryMessage* response = new MemoryMessage("Completed checking memory", false, msgId);
-    replyQueue->QueueMessage(response);
+    std::cout << physMemory << " MB of physical memory" << std::endl;
+    std::cout << virMemory << " MB of virtual memory" << std::endl;
+
+    std::stringstream ss;
+    ss << "Available Memory:\n"
+        << physMemory << " MB Physical Memory\n"
+        << virMemory << " MB Virtual Memory";
+
+    if (guiQueue != nullptr)
+    {
+        MemoryMessage* guiMsg = new MemoryMessage(ss.str(), true, msgId);
+        guiQueue->QueueMessage(guiMsg);
+    }
+    if (replyQueue != nullptr)
+    {
+        MemoryMessage* response = new MemoryMessage("Completed checking memory", false, msgId);
+        replyQueue->QueueMessage(response);
+    }
+
+    if (physMemory < 500)
+    {
+        if (guiQueue != nullptr)
+        {
+            MemoryMessage* warningMsg = new MemoryMessage(
+                "WARNING: Low memory! Less than 500MB available.\nMesh loading may fail.",
+                false,
+                msgId
+            );
+            guiQueue->QueueMessage(warningMsg);
+        }
+        return false;
+    }
 
     return true;
 }

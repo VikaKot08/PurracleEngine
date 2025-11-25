@@ -1,4 +1,5 @@
 #include "EditorManager.h"
+#include "GuiManager.h"
 #include "Model.h"
 #include "Message.h"
 #include "MeshManager.h"
@@ -22,6 +23,11 @@ void EditorManager::SetMeshManager(MeshManager* meshManager)
 	{
 		meshManager->SetReplyQueue(this);
 	}
+}
+
+void EditorManager::SetGuiManager(GuiManager* aGuiManager)
+{
+	guiManager = aGuiManager;
 }
 
 void EditorManager::ChangeMesh(Model* aModel, const std::string& meshPath)

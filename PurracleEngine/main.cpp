@@ -231,6 +231,8 @@ int main()
 
     EditorManager* editorManager = new EditorManager();
     editorManager->SetMeshManager(meshManager);
+    editorManager->SetGuiManager(gui);
+    meshManager->SetGuiQueue(gui);
 
     Scene* scene = new Scene();
     ForwardRenderer* renderer = new ForwardRenderer();

@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "FrameBuffer.h"
 #include "EditorManager.h"
+#include "MemoryMessage.h"
 #include "Scene.h"
 #include <stb_image.h>
 #include "ImGuizmo.h"
@@ -666,6 +667,7 @@ void GuiManager::DrawViewport()
 void GuiManager::Update(GLFWwindow* aWindow)
 {
     editorManager->Update();
+    ProcessMessages();
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -727,4 +729,53 @@ void GuiManager::Close()
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+}
+
+void GuiManager::ProcessMessage(Message* aMessage)
+{
+    if (aMessage->type == MessageType::Memory)
+    {
+        MemoryMessage* memMsg = static_cast<MemoryMessage*>(aMessage);
+
+        std::cout << "GuiManager: Received Memory message: " << memMsg->msg
+            << " (Request ID: " << memMsg->requestId << ")" << std::endl;
+
+        ShowPopup("Memory Status", memMsg->msg);
+    }
+    else
+    {
+        MessageQueue::ProcessMessage(aMessage);
+    }
+}
+
+void GuiManager::ShowPopup(const std::string& title, const std::string& message)
+{
+    popupTitle = title;
+    popupMessage = message;
+    showPopup = true;
+}
+
+void GuiManager::DrawPopup()
+{
+    if (showPopup)
+    {
+        ImGui::OpenPopup(popupTitle.c_str());
+        showPopup = false; // Only open once
+    }
+
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Appearing);
+
+    if (ImGui::BeginPopupModal(popupTitle.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::TextWrapped("%s", popupMessage.c_str());
+        ImGui::Separator();
+
+        if (ImGui::Button("OK", ImVec2(120, 0)))
+        {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
 }

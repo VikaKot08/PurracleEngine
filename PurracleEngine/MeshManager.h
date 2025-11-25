@@ -29,6 +29,7 @@ public:
 	std::vector<Mesh*>* LoadMeshes(const std::string& path);
 	void ReleaseMeshes(const std::string& path);
 	void ClearCache();
+	void SetGuiQueue(MessageQueue* queue) { guiQueue = queue; }
 
 	void SetReplyQueue(MessageQueue* replyQueue);
 
@@ -40,5 +41,6 @@ private:
 	static MeshManager* instance;
 	std::unordered_map<std::string, MeshData> meshCache;
 	MessageQueue* replyQueue;
+	MessageQueue* guiQueue;
 	int nextRequestId;
 };
