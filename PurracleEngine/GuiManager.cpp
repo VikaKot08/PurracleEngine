@@ -573,6 +573,13 @@ void GuiManager::DrawTransformControls()
         ImGui::Separator();
         ImGui::Spacing();
 
+        if (ImGui::Button("Save Optimized Meshe", ImVec2(-1, 0)))
+        {
+            SaveOptimizedMesh(selectedModel);
+        }
+
+        ImGui::Separator();
+
         if (ImGui::Button("Delete Model", ImVec2(-1, 0)))
         {
             DeleteSelectedModel();
@@ -778,4 +785,9 @@ void GuiManager::DrawPopup()
         }
         ImGui::EndPopup();
     }
+}
+
+void GuiManager::SaveOptimizedMesh(Model* aModel)
+{
+    editorManager->SaveOptimizedMesh(aModel);
 }

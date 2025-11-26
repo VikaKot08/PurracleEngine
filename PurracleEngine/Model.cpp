@@ -6,7 +6,7 @@
 Model::Model(const std::string& aPath, const char* aPathTex)
     : path(aPath),
     pathTex(aPathTex),
-    meshes(MeshManager::Get()->LoadMeshes(aPath)),
+    meshes(nullptr),
     myTexture(std::make_unique<Texture>(aPathTex)),
     meshIndex(0),
     textureIndex(0)
@@ -34,18 +34,4 @@ void Model::Render(Shader* myShader)
     }
 
     myTexture->Unbind();
-}
-
-void Model::ChangeMesh(const std::string& newPath)
-{
-    if (newPath == path)
-        return;
-
-    if (!path.empty())
-    {
-        MeshManager::Get()->ReleaseMeshes(path);
-    }
-
-    path = newPath;
-    meshes = MeshManager::Get()->LoadMeshes(path);
 }

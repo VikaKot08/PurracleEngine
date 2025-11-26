@@ -28,9 +28,9 @@ public:
 	void Serialize(const std::string& path, const std::vector<Mesh*>& meshes);
 	std::string GetOptimizedPath(const std::string& originalPath);
 
-	std::vector<Mesh*>* LoadMeshesAssimp(const std::string& path);
 	std::vector<Mesh*>* LoadMeshes(const std::string& path, int msgId);
-	std::vector<Mesh*>* LoadMeshes(const std::string& path);
+	std::vector<Mesh*>* LoadMeshesObj(const std::string& path);
+	std::vector<Mesh*>* GetFromChache(const std::string& path);
 	void ReleaseMeshes(const std::string& path);
 	void ClearCache();
 	void SetGuiQueue(MessageQueue* queue) { guiQueue = queue; }
@@ -47,4 +47,6 @@ private:
 	MessageQueue* replyQueue;
 	MessageQueue* guiQueue;
 	int nextRequestId;
+	bool HasOptimizedFile(const std::string& originalPath);
+	bool IsOptimizedFileNewer(const std::string& originalPath, const std::string& optimizedPath);
 };

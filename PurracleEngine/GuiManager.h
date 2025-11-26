@@ -81,6 +81,8 @@ private:
 
     std::vector<std::string> availableMeshes = {"Assets/Models/Cube.obj","Assets/Models/CubePrimitive.obj","Assets/Models/CylinderPrimitive.obj"};
 
+    void SaveOptimizedMesh(Model* aModel);
+
     std::vector<const char*> meshNames;
     std::vector<const char*> textureNames;
 

@@ -22,6 +22,11 @@ Scene::Scene()
     }
 }
 
+void Scene::SetMeshManager(MeshManager* aManager)
+{
+    meshManager = aManager;
+}
+
 void Scene::InitializeDefaultModels()
 {
     Model* model1 = LoadModel("Assets/Models/VikingHouse.obj", "Assets/Textures/VikingHouse.png");
@@ -53,6 +58,7 @@ void Scene::UpdateFlyingCamera(glm::vec4 direction, float deltaTime)
 Model* Scene::LoadModel(const std::string& aPath, const char* aPathTex)
 {
     Model* model = new Model(aPath, aPathTex);
+    model->meshes = meshManager->Get()->LoadMeshes(aPath, 0);
     return model;
 }
 

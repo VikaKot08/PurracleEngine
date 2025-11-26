@@ -1,5 +1,6 @@
 #pragma once
 #include "Camera.h"
+#include "MeshManager.h"
 #include "FlyingCamera.h"
 #include "Renderable.h"
 #include <embree4/rtcore.h>
@@ -12,6 +13,7 @@ class Scene
 public:
     Scene();
     ~Scene();
+    void SetMeshManager(MeshManager* aManager);
 
     Model* LoadModel(const std::string& aPath, const char* aPathTex);
     void AddRenderable(Model* aModel);
@@ -44,6 +46,7 @@ private:
     RTCScene embreeScene;
     std::vector<GeometryInfo> geometryMap;
     bool sceneNeedsUpdate;
+    MeshManager* meshManager;
 
     void AddModelToEmbreeScene(Model* model);
     void UpdateInstanceTransform(RTCGeometry instance, Model* model);

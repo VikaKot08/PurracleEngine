@@ -15,6 +15,11 @@ EditorManager::~EditorManager()
 {
 }
 
+void EditorManager::SaveOptimizedMesh(Model* aModel)
+{
+	meshManager->Get()->Serialize(aModel->path, *aModel->meshes);
+}
+
 void EditorManager::SetMeshManager(MeshManager* meshManager)
 {
 	this->meshManager = meshManager;
@@ -28,11 +33,6 @@ void EditorManager::SetMeshManager(MeshManager* meshManager)
 void EditorManager::SetGuiManager(GuiManager* aGuiManager)
 {
 	guiManager = aGuiManager;
-}
-
-void EditorManager::ChangeMesh(Model* aModel, const std::string& meshPath)
-{
-	aModel->ChangeMesh(meshPath);
 }
 
 void EditorManager::ChangeTexture(Model* aModel, const std::string& texturePath)
@@ -86,7 +86,8 @@ void EditorManager::ProcessMessage(Message* aMessage)
 		{
 			std::cout << "EditorManager: Received MeshLoaded confirmation for: "
 				<< loadedMsg->msg << " (Request ID: " << loadedMsg->requestId << ")" << std::endl;
-			ChangeMesh(loadedMsg->model, loadedMsg->msg);
+			loadedMsg->model->path = loadedMsg->msg;
+			loadedMsg->model->meshes = meshManager->Get()->GetFromChache(loadedMsg->msg);
 		}
 		else
 		{

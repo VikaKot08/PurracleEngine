@@ -244,7 +244,7 @@ int main()
 
     FrameBuffer* frameBuffer = new FrameBuffer(800, 600);
     std::vector<Model*> models;
-
+    scene->SetMeshManager(meshManager);
     scene->InitializeDefaultModels();
 
     for (Renderable* renderable : scene->GetRenderables())
