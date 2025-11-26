@@ -573,7 +573,7 @@ void GuiManager::DrawTransformControls()
         ImGui::Separator();
         ImGui::Spacing();
 
-        if (ImGui::Button("Save Optimized Meshe", ImVec2(-1, 0)))
+        if (ImGui::Button("Save Optimized Mesh", ImVec2(-1, 0)))
         {
             SaveOptimizedMesh(selectedModel);
         }
