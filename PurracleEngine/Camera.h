@@ -1,11 +1,12 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "Model.h"
 
-class Camera
+class Camera : public Model
 {
 public:
-    glm::vec3 position;
+    glm::vec3 aPosition;
     glm::vec3 up;
 
     float yaw = -90.0f; 
@@ -19,9 +20,11 @@ public:
     float mouseSensitivity = 0.1f;
 
     Camera();
+    void SyncRotationToYawPitch();
+    void SyncYawPitchToRotation();
 
     void SetPosition(const glm::vec3& aPos);
-    glm::vec3 GetPosition() const { return position; }
+    glm::vec3 GetPosition() const { return aPosition; }
 
     glm::mat4 GetView() const;
     glm::mat4 GetProjection() const;

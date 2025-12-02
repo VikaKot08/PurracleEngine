@@ -19,7 +19,7 @@ public:
     void AddRenderable(Model* aModel);
     void DeleteModel(Renderable* renderable);
     std::vector<Renderable*> GetRenderables() const { return renderables; }
-    Camera* GetCamera() const { return mainCamera; }
+    Camera* GetCamera() const { return activeCamera; }
     void UpdateFlyingCamera(glm::vec4 direction, float deltaTime);
 
     void BuildEmbreeScene();
@@ -27,9 +27,13 @@ public:
     Model* TraceRay(const glm::vec3& origin, const glm::vec3& direction);
     void MarkDirty() { sceneNeedsUpdate = true; }
     void InitializeDefaultModels();
-
+    void SetCamera(Camera* aCamera);
 
     std::vector<Renderable*> renderables;
+
+    Camera* mainCamera;
+
+    FlyingCamera* flyingCamera;
 
 private:
     struct GeometryInfo {
@@ -39,8 +43,7 @@ private:
         RTCScene baseScene;
     };
 
-    Camera* mainCamera;
-    FlyingCamera* flyingCamera;
+    Camera* activeCamera;
 
     RTCDevice embreeDevice;
     RTCScene embreeScene;

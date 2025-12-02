@@ -7,6 +7,8 @@ public:
 	FlyingCamera(Camera* cam) : camera(cam) {}
 
 	void Update(glm::vec4 direction,  float deltaTime);
+	float GetSpeed() { return speed; }
+	void SetSpeed(float aSpeed) { speed = aSpeed; }
 
 private:
 	Camera* camera;

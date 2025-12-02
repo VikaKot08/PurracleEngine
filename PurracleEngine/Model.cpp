@@ -10,7 +10,22 @@ Model::Model(const std::string& aPath, const char* aPathTex)
     myTexture(std::make_unique<Texture>(aPathTex)),
     meshIndex(0),
     textureIndex(0)
-{}
+{
+    type = ModelType::Normal;
+}
+
+Model::Model()
+    : path("Assets/Models/Camera.obj"),
+    pathTex("Assets/Textures/Camera.jpg"),
+    meshes(nullptr),
+    myTexture(std::make_unique<Texture>("Assets/Textures/Camera.jpg")),
+    meshIndex(0),
+    textureIndex(0)
+{
+    scale = glm::vec3{ 0.1 };
+    type = ModelType::CameraModel;
+    name = "Flying Camera";
+}
 
 Model::~Model()
 {
@@ -23,6 +38,7 @@ Model::~Model()
 
 void Model::Render(Shader* myShader)
 {
+    if (type == ModelType::CameraModel && isActive) return;
     myShader->SetMatrix4(GetMatrix(), "transform");
     myTexture->Bind(0);
     myShader->SetInt(0, "myTexture");

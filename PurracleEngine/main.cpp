@@ -89,7 +89,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
         if (scene)
         {
             Camera* camera = scene->GetCamera();
-            if (camera)
+            if (camera == scene ->mainCamera)
             {
                 camera->ProcessMouseMovement(xoffset, yoffset);
             }
@@ -185,7 +185,7 @@ void processInput(GLFWwindow* window, Scene* scene, float deltaTime)
         if (scene)
         {
             Camera* camera = scene->GetCamera();
-            if (camera)
+            if (camera == scene -> mainCamera)
             {
                 camera->ProcessMouseMovement(xoffset, yoffset);
             }

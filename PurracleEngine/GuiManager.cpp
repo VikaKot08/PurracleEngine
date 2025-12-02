@@ -256,8 +256,8 @@ void GuiManager::HandleMouseClick(GLFWwindow* window)
     float x = (2.0f * mouseX) / viewportSize.x - 1.0f;
     float y = 1.0f - (2.0f * mouseY) / viewportSize.y;
 
-    glm::mat4 projection = camera->GetProjection();
-    glm::mat4 view = camera->GetView();
+    glm::mat4 projection = scene->GetCamera()->GetProjection();
+    glm::mat4 view = scene->GetCamera()->GetView();
 
     glm::vec4 rayClip = glm::vec4(x, y, -1.0f, 1.0f);
     glm::vec4 rayEye = glm::inverse(projection) * rayClip;
@@ -266,7 +266,7 @@ void GuiManager::HandleMouseClick(GLFWwindow* window)
     glm::vec3 rayWorld = glm::vec3(glm::inverse(view) * rayEye);
     rayWorld = glm::normalize(rayWorld);
 
-    glm::vec3 rayOrigin = camera->GetPosition();
+    glm::vec3 rayOrigin = scene->GetCamera()->GetPosition();
 
     // Use scene's ray tracing
     Model* pickedModel = scene->TraceRay(rayOrigin, rayWorld);
@@ -495,96 +495,242 @@ void GuiManager::DrawSceneHierarchy()
 
 void GuiManager::DrawTransformControls()
 {
-    ImGui::Begin("Transform Controls");
+    ImGui::Begin("Controls");
 
     if (selectedModel)
     {
-        ImGui::Text("Model Name");
-        char nameBuf[256];
-        strncpy_s(nameBuf, sizeof(nameBuf), selectedModel->name.c_str(), _TRUNCATE);
-
-        if (ImGui::InputText("##ModelName", nameBuf, sizeof(nameBuf)))
+        if(selectedModel -> type == ModelType::Normal)
         {
-            if(!std::string(nameBuf).empty())
+            ImGui::Text("Model Name");
+            char nameBuf[256];
+            strncpy_s(nameBuf, sizeof(nameBuf), selectedModel->name.c_str(), _TRUNCATE);
+
+            if (ImGui::InputText("##ModelName", nameBuf, sizeof(nameBuf)))
             {
-                selectedModel->name = std::string(nameBuf);
-            }
-        }
-
-        ImGui::Spacing();
-        ImGui::Separator();
-        ImGui::Spacing();
-
-
-        ImGui::Text("Position");
-        if (ImGui::InputFloat3("##Position", glm::value_ptr(positionVec)))
-        {
-            UpdateSelectedModelTransform();
-        }
-
-        ImGui::Text("Rotation (degrees)");
-        if (ImGui::InputFloat3("##Rotation", glm::value_ptr(rotationVecInput)))
-        {
-            float maxSafe = 1e6f;
-            for (int i = 0; i < 3; i++)
-            {
-                if (rotationVecInput[i] > maxSafe) rotationVecInput[i] = maxSafe;
-                if (rotationVecInput[i] < -maxSafe) rotationVecInput[i] = -maxSafe;
+                if (!std::string(nameBuf).empty())
+                {
+                    selectedModel->name = std::string(nameBuf);
+                }
             }
 
-            rotationVec.x = WrapAngle(rotationVecInput.x);
-            rotationVec.y = WrapAngle(rotationVecInput.y);
-            rotationVec.z = WrapAngle(rotationVecInput.z);
 
-            rotationVecInput.x = WrapAngle(rotationVecInput.x);
-            rotationVecInput.y = WrapAngle(rotationVecInput.y);
-            rotationVecInput.z = WrapAngle(rotationVecInput.z);
+            if (ImGui::Button("Convert to camera", ImVec2(-1, 0)))
+            {
+                Camera* newCamera = new Camera();
+                newCamera->SetPosition(selectedModel->position);
+                newCamera->rotation = selectedModel->rotation;
+                newCamera->scale = glm::vec3{ 0.1 };
 
-            UpdateSelectedModelTransform();
-        }
+                newCamera->SyncRotationToYawPitch();
 
-        ImGui::Text("Scale");
-        if (ImGui::InputFloat3("##Scale", glm::value_ptr(scaleVec)))
+                newCamera->name = selectedModel->name + " (Camera)";
+
+                DeleteSelectedModel();
+                SelectModel(newCamera);
+                ChangeMesh("Assets/Models/Camera.obj");
+                ChangeTexture("Assets/Textures/Camera.jpg");
+
+                modelList->push_back(newCamera);
+                scene->AddRenderable(newCamera);
+                scene->BuildEmbreeScene();
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
+
+            ImGui::Text("Position");
+            if (ImGui::InputFloat3("##Position", glm::value_ptr(positionVec)))
+            {
+                UpdateSelectedModelTransform();
+            }
+
+            ImGui::Text("Rotation (degrees)");
+            if (ImGui::InputFloat3("##Rotation", glm::value_ptr(rotationVecInput)))
+            {
+                float maxSafe = 1e6f;
+                for (int i = 0; i < 3; i++)
+                {
+                    if (rotationVecInput[i] > maxSafe) rotationVecInput[i] = maxSafe;
+                    if (rotationVecInput[i] < -maxSafe) rotationVecInput[i] = -maxSafe;
+                }
+
+                rotationVec.x = WrapAngle(rotationVecInput.x);
+                rotationVec.y = WrapAngle(rotationVecInput.y);
+                rotationVec.z = WrapAngle(rotationVecInput.z);
+
+                rotationVecInput.x = WrapAngle(rotationVecInput.x);
+                rotationVecInput.y = WrapAngle(rotationVecInput.y);
+                rotationVecInput.z = WrapAngle(rotationVecInput.z);
+
+                UpdateSelectedModelTransform();
+            }
+
+            ImGui::Text("Scale");
+            if (ImGui::InputFloat3("##Scale", glm::value_ptr(scaleVec)))
+            {
+                UpdateSelectedModelTransform();
+            }
+
+
+            ImGui::Spacing();
+
+            ImGui::SeparatorText("Mesh");
+
+            if (ImGui::Combo("##MeshType", &selectedModel->meshIndex, meshNames.data(), meshNames.size()))
+            {
+                ChangeMesh(availableMeshes[selectedModel->meshIndex]);
+            }
+
+
+            ImGui::Spacing();
+
+            ImGui::SeparatorText("Texture");
+
+            if (ImGui::Combo("##Texture", &selectedModel->textureIndex, textureNames.data(), textureNames.size()))
+            {
+                ChangeTexture(availableTextures[selectedModel->textureIndex]);
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            if (ImGui::Button("Save Optimized Mesh", ImVec2(-1, 0)))
+            {
+                SaveOptimizedMesh(selectedModel);
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::Button("Delete Model", ImVec2(-1, 0)))
+            {
+                DeleteSelectedModel();
+            }
+        } 
+        else if (selectedModel->type == ModelType::CameraModel)
         {
-            UpdateSelectedModelTransform();
+            Camera* selectedCamera = dynamic_cast<Camera*>(selectedModel);
+            ImGui::Text("Camera Name");
+            char nameBuf[256];
+            strncpy_s(nameBuf, sizeof(nameBuf), selectedModel->name.c_str(), _TRUNCATE);
+
+            if (ImGui::InputText("##CameraName", nameBuf, sizeof(nameBuf)))
+            {
+                if (!std::string(nameBuf).empty())
+                {
+                    selectedModel->name = std::string(nameBuf);
+                }
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+            positionVec = selectedCamera->position;
+
+            if (selectedCamera == scene->mainCamera)
+            { 
+                selectedCamera->SyncYawPitchToRotation();
+            }
+            rotationVecInput = selectedCamera->rotation;
+
+            ImGui::Text("Position");
+            if (ImGui::InputFloat3("##Position", glm::value_ptr(positionVec)))
+            {
+                UpdateSelectedModelTransform();
+            }
+
+            ImGui::Text("Rotation (degrees)");
+            if (ImGui::InputFloat3("##Rotation", glm::value_ptr(rotationVecInput)))
+            {
+                float maxSafe = 1e6f;
+                for (int i = 0; i < 3; i++)
+                {
+                    if (rotationVecInput[i] > maxSafe) rotationVecInput[i] = maxSafe;
+                    if (rotationVecInput[i] < -maxSafe) rotationVecInput[i] = -maxSafe;
+                }
+
+                rotationVec.x = WrapAngle(rotationVecInput.x);
+                rotationVec.y = WrapAngle(rotationVecInput.y);
+                rotationVec.z = WrapAngle(rotationVecInput.z);
+
+                rotationVecInput.x = WrapAngle(rotationVecInput.x);
+                rotationVecInput.y = WrapAngle(rotationVecInput.y);
+                rotationVecInput.z = WrapAngle(rotationVecInput.z);
+
+                UpdateSelectedModelTransform();
+                selectedCamera->SyncRotationToYawPitch();
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            if (selectedCamera)
+            {
+                ImGui::SeparatorText("Camera Settings");
+
+                if (selectedCamera == scene->mainCamera)
+                {
+                    ImGui::Text("Flying speed");
+                    float speed = scene->flyingCamera->GetSpeed();
+                    if (ImGui::SliderFloat("##FS", &speed, 1.0f, 20.0f, "%.1f"))
+                    {
+                        scene->flyingCamera->SetSpeed(speed);
+                    }
+                }
+
+                ImGui::Text("Field of View");
+                float fov = selectedCamera->fov;
+                if (ImGui::SliderFloat("##FOV", &fov, 1.0f, 120.0f, "%.1f degrees"))
+                {
+                    selectedCamera->fov = fov;
+                }
+
+                ImGui::Text("Near Plane");
+                float nearPlane = selectedCamera->near;
+                if (ImGui::InputFloat("##Near", &nearPlane, 0.01f, 0.1f, "%.3f"))
+                {
+                    if (nearPlane > 0.001f && nearPlane < selectedCamera->far)
+                    {
+                        selectedCamera->near = nearPlane;
+                    }
+                }
+
+                ImGui::Text("Far Plane");
+                float farPlane = selectedCamera->far;
+                if (ImGui::InputFloat("##Far", &farPlane, 1.0f, 10.0f, "%.1f"))
+                {
+                    if (farPlane > selectedCamera->near)
+                    {
+                        selectedCamera->far = farPlane;
+                    }
+                }
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+            }
+
+            if(!selectedModel->isActive)
+            {
+                if (ImGui::Button("Switch to camera", ImVec2(-1, 0)))
+                {
+                    Camera* selectedCamera = dynamic_cast<Camera*>(selectedModel);
+                    scene->SetCamera(selectedCamera);
+                }
+
+                ImGui::Separator();
+
+                if (selectedModel != scene -> mainCamera)
+                {
+                    if (ImGui::Button("Delete Model", ImVec2(-1, 0)))
+                    {
+                        DeleteSelectedModel();
+                    }
+                }
+            }
         }
-
-
-        ImGui::Spacing();
-
-        ImGui::SeparatorText("Mesh");
-
-        if (ImGui::Combo("##MeshType", &selectedModel->meshIndex, meshNames.data(), meshNames.size()))
-        {
-            ChangeMesh(availableMeshes[selectedModel->meshIndex]);
-        }
-
-
-        ImGui::Spacing();
-
-        ImGui::SeparatorText("Texture");
-   
-        if (ImGui::Combo("##Texture", &selectedModel->textureIndex, textureNames.data(), textureNames.size()))
-        {
-            ChangeTexture(availableTextures[selectedModel->textureIndex]);
-        }
-
-        ImGui::Spacing();
-        ImGui::Separator();
-        ImGui::Spacing();
-
-        if (ImGui::Button("Save Optimized Mesh", ImVec2(-1, 0)))
-        {
-            SaveOptimizedMesh(selectedModel);
-        }
-
-        ImGui::Separator();
-
-        if (ImGui::Button("Delete Model", ImVec2(-1, 0)))
-        {
-            DeleteSelectedModel();
-        }
-
     }
     else
     {
@@ -597,13 +743,13 @@ void GuiManager::DrawTransformControls()
 
 void GuiManager::ApplyGizmosAndTransform()
 {
-    if (selectedModel && camera)
+    if (selectedModel && scene->GetCamera())
     {
         ImGuizmo::SetDrawlist();
         ImGuizmo::SetRect(viewportPos.x, viewportPos.y, viewportSize.x, viewportSize.y);
 
-        glm::mat4 view = camera->GetView();
-        glm::mat4 proj = camera->GetProjection();
+        glm::mat4 view = scene->GetCamera()->GetView();
+        glm::mat4 proj = scene->GetCamera()->GetProjection();
         glm::mat4 modelMatrix = selectedModel->GetMatrix(); 
 
         ImGuizmo::MODE gizmoMode = selectedModel->parent ? ImGuizmo::LOCAL : ImGuizmo::WORLD;
@@ -639,6 +785,11 @@ void GuiManager::ApplyGizmosAndTransform()
 
             if (scene) {
                 scene->MarkDirty();
+            }
+            if(selectedModel -> type == ModelType::CameraModel) 
+            {
+                Camera* selectedCamera = dynamic_cast<Camera*>(selectedModel);
+                selectedCamera->SyncRotationToYawPitch();
             }
         }
     }

@@ -13,6 +13,8 @@ Scene::Scene()
     , sceneNeedsUpdate(false)
 {
     mainCamera = new Camera();
+    activeCamera = mainCamera;
+    mainCamera->meshes = meshManager->Get()->LoadMeshes("Assets/Models/Camera.obj", 0);
 
     flyingCamera = new FlyingCamera(mainCamera);
 
@@ -27,8 +29,23 @@ void Scene::SetMeshManager(MeshManager* aManager)
     meshManager = aManager;
 }
 
+void Scene::SetCamera(Camera* aCamera)
+{
+    if (activeCamera) {
+        activeCamera->isActive = false;
+    }
+
+    activeCamera = aCamera;
+    aCamera->isActive = true;
+
+    BuildEmbreeScene();
+}
+
 void Scene::InitializeDefaultModels()
 {
+    AddRenderable(mainCamera);
+    mainCamera->isActive = true;
+
     Model* model1 = LoadModel("Assets/Models/VikingHouse.obj", "Assets/Textures/VikingHouse.png");
     model1->scale = glm::vec3(19.0f, 19.0f, 19.0f);
     model1->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -52,6 +69,7 @@ void Scene::InitializeDefaultModels()
 
 void Scene::UpdateFlyingCamera(glm::vec4 direction, float deltaTime)
 {
+    if (activeCamera != mainCamera) return;
     flyingCamera->Update(direction, deltaTime);
 }
 
@@ -83,7 +101,6 @@ Scene::~Scene()
 
     MeshManager::Deallocate();
 
-    delete mainCamera;
     delete flyingCamera;
 }
 
@@ -136,12 +153,16 @@ void Scene::BuildEmbreeScene()
 
 void Scene::AddModelToEmbreeScene(Model* model)
 {
-    if (!model || !embreeDevice || !model->meshes) return; 
+    if (!model || !embreeDevice || !model->meshes) return;
+
+    if (model->type == ModelType::CameraModel && model->isActive) {
+        return;
+    }
 
     std::vector<glm::vec3> localVertices;
     std::vector<unsigned int> localIndices;
 
-    for (Mesh* mesh : *model->meshes) { 
+    for (Mesh* mesh : *model->meshes) {
         size_t baseVertex = localVertices.size();
 
         for (const Vertex& v : mesh->vertices) {
@@ -156,6 +177,7 @@ void Scene::AddModelToEmbreeScene(Model* model)
     if (localVertices.empty() || localIndices.empty()) {
         return;
     }
+
     RTCScene baseScene = rtcNewScene(embreeDevice);
     RTCGeometry geom = rtcNewGeometry(embreeDevice, RTC_GEOMETRY_TYPE_TRIANGLE);
 

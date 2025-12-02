@@ -2,7 +2,8 @@
 
 Camera::Camera()
 {
-    position = glm::vec3(0.0f, 0.0f, 3.0f);
+    aPosition = glm::vec3(0.0f, 0.0f, 3.0f);
+    position = aPosition;
     up = glm::vec3(0.0f, 1.0f, 0.0f);
 
     fov = 90.0f;
@@ -11,8 +12,22 @@ Camera::Camera()
     far = 100.0f;
 }
 
+void Camera::SyncRotationToYawPitch()
+{
+    yaw = rotation.y - 90.0f;
+    pitch = -rotation.x;
+}
+
+void Camera::SyncYawPitchToRotation()
+{
+    rotation.y = yaw + 90.0f;
+    rotation.x = -pitch;
+    rotation.z = 0.0f;
+}
+
 void Camera::SetPosition(const glm::vec3& aPos)
 {
+    aPosition = aPos;
     position = aPos;
 }
 
@@ -36,6 +51,16 @@ void Camera::SetAspectRatio(float width, float height)
     SetAspectRatioInternal(width / height);
 }
 
+void Camera::ProcessMouseScroll(float yoffset)
+{
+    fov -= yoffset;
+
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 120.0f)
+        fov = 120.0f;
+}
+
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch)
 {
     xoffset *= mouseSensitivity;
@@ -51,14 +76,4 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPi
         if (pitch < -89.0f)
             pitch = -89.0f;
     }
-}
-
-void Camera::ProcessMouseScroll(float yoffset)
-{
-    fov -= yoffset;
-
-    if (fov < 1.0f)
-        fov = 1.0f;
-    if (fov > 120.0f)
-        fov = 120.0f;
 }

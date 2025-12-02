@@ -4,6 +4,11 @@
 #include <iostream>
 #include <memory>
 
+enum ModelType
+{
+	CameraModel,
+	Normal
+};
 struct Position
 {
 	float x;
@@ -16,9 +21,12 @@ class Model : public Renderable
 public:
 
 	Model(const std::string& aPath, const char* pathTex);
+	Model();
 	~Model() override;
 	void Render(Shader* myShader) override;
-	void ChangeMesh(const std::string& newPath);
+
+	ModelType type;
+	bool isActive = false;
 
 	std::vector<Mesh*>* meshes;
 	std::unique_ptr<Texture> myTexture;
