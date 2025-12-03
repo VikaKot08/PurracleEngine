@@ -7,6 +7,7 @@
 class Model;
 class MeshManager;
 class GuiManager;
+class Scene;
 
 class EditorManager : public MessageQueue
 {
@@ -26,6 +27,11 @@ public:
 
 	void SaveOptimizedMesh(Model* aPointer);
 
+	void RequestSaveScene(const std::string& filepath);
+	void RequestLoadScene(const std::string& filepath);
+	void SetScene(Scene* scene) { this->scene = scene; }
+	void SetModelList(std::vector<Model*>* models) { this->modelList = models; }
+
 protected:
 	void ProcessMessage(Message* aMessage) override;
 
@@ -33,5 +39,7 @@ private:
 	MeshManager* meshManager;
 	GuiManager* guiManager;
 	int nextRequestId;
+	Scene* scene = nullptr;
+	std::vector<Model*>* modelList = nullptr;
 };
 

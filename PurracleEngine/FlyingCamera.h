@@ -9,6 +9,7 @@ public:
 	void Update(glm::vec4 direction,  float deltaTime);
 	float GetSpeed() { return speed; }
 	void SetSpeed(float aSpeed) { speed = aSpeed; }
+	void SetNewCamera(Camera* aCamera) { camera = aCamera; }
 
 private:
 	Camera* camera;

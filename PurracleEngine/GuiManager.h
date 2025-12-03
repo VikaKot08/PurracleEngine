@@ -97,4 +97,13 @@ private:
     void ProcessMessage(Message* aMessage) override;
     void ShowPopup(const std::string& title, const std::string& message);
     void DrawPopup();
+
+    std::vector<std::string> availableScenes;
+    int selectedSceneIndex = -1;
+    char newSceneName[256] = "NewScene";
+
+    void DrawSceneManager();
+    void RefreshSceneList();
+    void SaveCurrentScene(const std::string& sceneName);
+    void LoadSelectedScene(const std::string& sceneName);
 };

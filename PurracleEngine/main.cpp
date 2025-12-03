@@ -4,6 +4,7 @@
 
 #include "Model.h"
 #include "Shader.h"
+#include "SceneSerializer.h"
 
 #include "EngineContext.h"
 #include "ForwardRenderer.h"
@@ -14,6 +15,7 @@
 #include "EditorManager.h"
 
 #include <chrono>
+#include <filesystem>
 
 auto lastTime = std::chrono::high_resolution_clock::now();
 
@@ -245,16 +247,9 @@ int main()
     FrameBuffer* frameBuffer = new FrameBuffer(800, 600);
     std::vector<Model*> models;
     scene->SetMeshManager(meshManager);
-    scene->InitializeDefaultModels();
 
-    for (Renderable* renderable : scene->GetRenderables())
-    {
-        Model* model = dynamic_cast<Model*>(renderable);
-        if (model)
-        {
-            models.push_back(model);
-        }
-    }
+    editorManager->SetScene(scene);
+    editorManager->SetModelList(&models);
 
     gui->SetModelList(&models);
     gui->SetScene(scene);
@@ -262,6 +257,28 @@ int main()
     gui->SetEditorManager(editorManager);
 
     gui->RefreshAssets();
+
+    std::string autoLoadScene = "Assets/Scenes/Default.scene";
+    if (std::filesystem::exists(autoLoadScene))
+    {
+        std::cout << "Auto-loading scene: " << autoLoadScene << std::endl;
+        SceneSerializer::LoadScene(scene, autoLoadScene, &models);
+    }
+    else
+    {
+        // Initialize with default models if no scene exists
+        scene->InitializeDefaultModels();
+
+        // Add the default models to the model list
+        for (Renderable* r : scene->GetRenderables())
+        {
+            Model* model = dynamic_cast<Model*>(r);
+            if (model)
+            {
+                models.push_back(model);
+            }
+        }
+    }
 
     if (!models.empty())
     {

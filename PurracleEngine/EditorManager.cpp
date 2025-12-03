@@ -6,6 +6,10 @@
 #include "MeshLoadedMessage.h"
 #include "LoadMeshMessage.h"
 #include <iostream>
+#include "SaveSceneMessage.h"
+#include "LoadSceneMessage.h"
+#include "SceneSerializer.h"
+#include "SceneOperationCompleteMessage.h"
 
 EditorManager::EditorManager() : meshManager(nullptr), nextRequestId(0)
 {
@@ -13,6 +17,46 @@ EditorManager::EditorManager() : meshManager(nullptr), nextRequestId(0)
 
 EditorManager::~EditorManager()
 {
+}
+
+void EditorManager::RequestSaveScene(const std::string& filepath)
+{
+	std::cout << "EditorManager: Saving scene to: " << filepath << std::endl;
+
+	bool success = SceneSerializer::SaveScene(scene, filepath);
+
+	std::string message = success
+		? "Scene saved successfully to " + filepath
+		: "Failed to save scene to " + filepath;
+
+	SceneOperationCompleteMessage* completeMsg = new SceneOperationCompleteMessage(
+		"save", success, message, nextRequestId++
+	);
+
+	if (guiManager)
+	{
+		guiManager->QueueMessage(completeMsg);
+	}
+}
+
+void EditorManager::RequestLoadScene(const std::string& filepath)
+{
+	std::cout << "EditorManager: Loading scene from: " << filepath << std::endl;
+
+	bool success = SceneSerializer::LoadScene(scene, filepath, modelList);
+
+	std::string message = success
+		? "Scene loaded successfully from " + filepath
+		: "Failed to load scene from " + filepath;
+
+	SceneOperationCompleteMessage* completeMsg = new SceneOperationCompleteMessage(
+		"load", success, message, nextRequestId++
+	);
+
+	if (guiManager)
+	{
+		guiManager->QueueMessage(completeMsg);
+	}
 }
 
 void EditorManager::SaveOptimizedMesh(Model* aModel)
@@ -78,7 +122,16 @@ void EditorManager::Update()
 
 void EditorManager::ProcessMessage(Message* aMessage)
 {
-	if (aMessage->type == MessageType::MeshLoaded)
+	if (aMessage->type == MessageType::SaveScene)
+	{
+		SaveSceneMessage* saveMsg = static_cast<SaveSceneMessage*>(aMessage);
+		RequestSaveScene(saveMsg->filepath);
+	}
+	else if (aMessage->type == MessageType::LoadScene)
+	{
+		LoadSceneMessage* loadMsg = static_cast<LoadSceneMessage*>(aMessage);
+		RequestLoadScene(loadMsg->filepath);
+	} else if (aMessage->type == MessageType::MeshLoaded)
 	{
 		MeshLoadedMessage* loadedMsg = static_cast<MeshLoadedMessage*>(aMessage);
 

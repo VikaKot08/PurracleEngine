@@ -163,6 +163,7 @@
     <ClCompile Include="GuiManager.cpp" />
     <ClCompile Include="ImGuizmo.cpp" />
     <ClCompile Include="LoadMeshMessage.cpp" />
+    <ClCompile Include="LoadSceneMessage.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MemoryMessage.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -174,7 +175,10 @@
     <ClCompile Include="Renderable.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderPass.cpp" />
+    <ClCompile Include="SaveSceneMessage.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneOperationCompleteMessage.cpp" />
+    <ClCompile Include="SceneSerializer.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -202,6 +206,7 @@
     <ClInclude Include="GuiManager.h" />
     <ClInclude Include="ImGuizmo.h" />
     <ClInclude Include="LoadMeshMessage.h" />
+    <ClInclude Include="LoadSceneMessage.h" />
     <ClInclude Include="MemoryMessage.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshLoadedMessage.h" />
@@ -213,7 +218,10 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderPass.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SaveSceneMessage.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneOperationCompleteMessage.h" />
+    <ClInclude Include="SceneSerializer.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Triangle.h" />

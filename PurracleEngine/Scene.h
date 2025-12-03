@@ -28,6 +28,7 @@ public:
     void MarkDirty() { sceneNeedsUpdate = true; }
     void InitializeDefaultModels();
     void SetCamera(Camera* aCamera);
+    void SetMainCamera(Camera* aCamera);
 
     std::vector<Renderable*> renderables;
 

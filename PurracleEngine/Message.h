@@ -5,7 +5,10 @@ enum MessageType
 {
 	LoadMesh,
 	MeshLoaded,
-	Memory
+	Memory,
+	SaveScene,
+	LoadScene,
+	SceneOperationComplete
 };
 class Message
 {

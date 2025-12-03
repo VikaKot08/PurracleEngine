@@ -4,6 +4,8 @@
 #include "FrameBuffer.h"
 #include "EditorManager.h"
 #include "MemoryMessage.h"
+#include "SceneSerializer.h"
+#include "SceneOperationCompleteMessage.h"
 #include "Scene.h"
 #include <stb_image.h>
 #include "ImGuizmo.h"
@@ -125,6 +127,8 @@ void GuiManager::Start(GLFWwindow* aWindow)
     ImGui_ImplOpenGL3_Init();
     UpdateFileNames();
     RefreshAssets();
+    RefreshSceneList();
+    RefreshSceneList();
 }
 
 void GuiManager::SetIcon(GLFWwindow* aWindow)
@@ -858,6 +862,7 @@ void GuiManager::Update(GLFWwindow* aWindow)
     DrawSceneHierarchy();
     DrawTransformControls();
     DrawViewport();
+    DrawSceneManager();
 
     if (ImGui::IsMouseClicked(0) && m_viewportHovered && !ImGui::IsAnyItemActive())
     {
@@ -891,7 +896,34 @@ void GuiManager::Close()
 
 void GuiManager::ProcessMessage(Message* aMessage)
 {
-    if (aMessage->type == MessageType::Memory)
+    if (aMessage->type == MessageType::SceneOperationComplete)
+    {
+        SceneOperationCompleteMessage* completeMsg = static_cast<SceneOperationCompleteMessage*>(aMessage);
+
+        std::string title = completeMsg->operation == "save" ? "Save Scene" : "Load Scene";
+
+        if (completeMsg->success)
+        {
+            ShowPopup(title, completeMsg->message);
+
+            if (completeMsg->operation == "load")
+            {
+                // Refresh the GUI after loading
+                if (modelList && !modelList->empty())
+                {
+                    SelectModel(modelList->at(0));
+                }
+                else
+                {
+                    selectedModel = nullptr;
+                }
+            }
+        }
+        else
+        {
+            ShowPopup(title + " Error", completeMsg->message);
+        }
+    } else if (aMessage->type == MessageType::Memory)
     {
         MemoryMessage* memMsg = static_cast<MemoryMessage*>(aMessage);
 
@@ -941,4 +973,129 @@ void GuiManager::DrawPopup()
 void GuiManager::SaveOptimizedMesh(Model* aModel)
 {
     editorManager->SaveOptimizedMesh(aModel);
+}
+
+void GuiManager::RefreshSceneList()
+{
+    availableScenes = SceneSerializer::GetAvailableScenes();
+}
+
+void GuiManager::SaveCurrentScene(const std::string& sceneName)
+{
+    if (sceneName.empty())
+    {
+        ShowPopup("Save Error", "Scene name cannot be empty!");
+        return;
+    }
+
+    std::string filepath = SceneSerializer::GetSceneDirectory() + "/" + sceneName;
+    if (filepath.find(".scene") == std::string::npos)
+    {
+        filepath += ".scene";
+    }
+
+    if (editorManager)
+    {
+        editorManager->RequestSaveScene(filepath);
+    }
+}
+
+void GuiManager::LoadSelectedScene(const std::string& sceneName)
+{
+    if (sceneName.empty())
+    {
+        ShowPopup("Load Error", "No scene selected!");
+        return;
+    }
+
+    std::string filepath = SceneSerializer::GetSceneDirectory() + "/" + sceneName;
+
+    if (editorManager)
+    {
+        editorManager->RequestLoadScene(filepath);
+    }
+}
+
+void GuiManager::DrawSceneManager()
+{
+    ImGui::Begin("Scene Manager");
+
+    ImGui::SeparatorText("Save Scene");
+
+    ImGui::Text("Scene Name:");
+    ImGui::InputText("##SceneName", newSceneName, sizeof(newSceneName));
+
+    if (ImGui::Button("Save Scene", ImVec2(-1, 0)))
+    {
+        SaveCurrentScene(std::string(newSceneName));
+        RefreshSceneList();
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    ImGui::SeparatorText("Load Scene");
+
+    if (ImGui::Button("Refresh Scene List", ImVec2(-1, 0)))
+    {
+        RefreshSceneList();
+    }
+
+    ImGui::Spacing();
+
+    if (availableScenes.empty())
+    {
+        ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "No saved scenes found");
+    }
+    else
+    {
+        ImGui::Text("Available Scenes:");
+
+        ImGui::BeginChild("SceneList", ImVec2(0, 200), true);
+
+        for (size_t i = 0; i < availableScenes.size(); ++i)
+        {
+            bool isSelected = (selectedSceneIndex == static_cast<int>(i));
+
+            if (ImGui::Selectable(availableScenes[i].c_str(), isSelected))
+            {
+                selectedSceneIndex = static_cast<int>(i);
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+
+        ImGui::EndChild();
+
+        if (selectedSceneIndex >= 0 && selectedSceneIndex < static_cast<int>(availableScenes.size()))
+        {
+            if (ImGui::Button("Load Selected Scene", ImVec2(-1, 0)))
+            {
+                LoadSelectedScene(availableScenes[selectedSceneIndex]);
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Delete Selected", ImVec2(-1, 0)))
+            {
+                std::string filepath = SceneSerializer::GetSceneDirectory() + "/" + availableScenes[selectedSceneIndex];
+                if (std::filesystem::remove(filepath))
+                {
+                    ShowPopup("Delete Success", "Scene deleted successfully!");
+                    RefreshSceneList();
+                    selectedSceneIndex = -1;
+                }
+                else
+                {
+                    ShowPopup("Delete Error", "Failed to delete scene file!");
+                }
+            }
+        }
+    }
+
+    ImGui::End();
 }

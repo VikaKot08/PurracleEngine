@@ -41,6 +41,12 @@ void Scene::SetCamera(Camera* aCamera)
     BuildEmbreeScene();
 }
 
+void Scene::SetMainCamera(Camera* aCamera)
+{
+    mainCamera = aCamera;
+    flyingCamera->SetNewCamera(aCamera);
+}
+
 void Scene::InitializeDefaultModels()
 {
     AddRenderable(mainCamera);
