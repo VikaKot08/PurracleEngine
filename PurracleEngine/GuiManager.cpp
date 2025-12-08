@@ -523,7 +523,7 @@ void GuiManager::DrawTransformControls()
                 Camera* newCamera = new Camera();
                 newCamera->SetPosition(selectedModel->position);
                 newCamera->rotation = selectedModel->rotation;
-                newCamera->scale = glm::vec3{ 0.1 };
+                newCamera->scale = glm::vec3{ 1.0f };
 
                 newCamera->SyncRotationToYawPitch();
 

@@ -22,7 +22,7 @@ Model::Model()
     meshIndex(0),
     textureIndex(0)
 {
-    scale = glm::vec3{ 0.1 };
+    scale = glm::vec3{ 1.0f };
     type = ModelType::CameraModel;
     name = "Flying Camera";
 }

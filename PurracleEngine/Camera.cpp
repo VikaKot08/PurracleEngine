@@ -15,13 +15,13 @@ Camera::Camera()
 void Camera::SyncRotationToYawPitch()
 {
     yaw = rotation.y - 90.0f;
-    pitch = -rotation.x;
+    pitch = rotation.x;
 }
 
 void Camera::SyncYawPitchToRotation()
 {
     rotation.y = yaw + 90.0f;
-    rotation.x = -pitch;
+    rotation.x = pitch;
     rotation.z = 0.0f;
 }
 
