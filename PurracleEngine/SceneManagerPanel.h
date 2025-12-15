@@ -12,6 +12,7 @@ public:
 
     void Draw();
     void RefreshSceneList();
+    void ShowPopup(const std::string& title, const std::string& message);
 
 private:
     EditorManager* editorManager;
@@ -21,7 +22,12 @@ private:
     int selectedSceneIndex;
     char newSceneName[256];
 
+    // Popup system
+    bool showPopup;
+    std::string popupTitle;
+    std::string popupMessage;
+
     void SaveCurrentScene(const std::string& sceneName);
     void LoadSelectedScene(const std::string& sceneName);
+    void DrawPopup();
 };
-

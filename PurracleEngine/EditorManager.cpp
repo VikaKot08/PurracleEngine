@@ -2,6 +2,7 @@
 #include "GuiManager.h"
 #include "Model.h"
 #include "Message.h"
+#include "Scene.h"
 #include "MeshManager.h"
 #include "MeshLoadedMessage.h"
 #include "LoadMeshMessage.h"
@@ -81,6 +82,7 @@ void EditorManager::SetGuiManager(GuiManager* aGuiManager)
 
 void EditorManager::ChangeTexture(Model* aModel, const std::string& texturePath)
 {
+	aModel->pathTex = texturePath.c_str();
 	aModel->myTexture = std::make_unique<Texture>(texturePath.c_str());
 }
 
@@ -141,6 +143,7 @@ void EditorManager::ProcessMessage(Message* aMessage)
 				<< loadedMsg->msg << " (Request ID: " << loadedMsg->requestId << ")" << std::endl;
 			loadedMsg->model->path = loadedMsg->msg;
 			loadedMsg->model->meshes = meshManager->Get()->GetFromChache(loadedMsg->msg);
+			guiManager->GetScene()->BuildEmbreeScene();
 		}
 		else
 		{

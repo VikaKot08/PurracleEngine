@@ -9,7 +9,8 @@
 SceneManagerPanel::SceneManagerPanel(EditorManager* editorMgr, SelectionManager* selectionMgr)
     : editorManager(editorMgr),
     selectionManager(selectionMgr),
-    selectedSceneIndex(-1)
+    selectedSceneIndex(-1),
+    showPopup(false)
 {
     memset(newSceneName, 0, sizeof(newSceneName));
     RefreshSceneList();
@@ -84,14 +85,21 @@ void SceneManagerPanel::Draw()
                 std::string filepath = SceneSerializer::GetSceneDirectory() + "/" + availableScenes[selectedSceneIndex];
                 if (std::filesystem::remove(filepath))
                 {
+                    ShowPopup("Delete Success", "Scene deleted successfully!");
                     RefreshSceneList();
                     selectedSceneIndex = -1;
+                }
+                else
+                {
+                    ShowPopup("Delete Error", "Failed to delete scene file!");
                 }
             }
         }
     }
 
     ImGui::End();
+
+    DrawPopup();
 }
 
 void SceneManagerPanel::RefreshSceneList()
@@ -102,7 +110,10 @@ void SceneManagerPanel::RefreshSceneList()
 void SceneManagerPanel::SaveCurrentScene(const std::string& sceneName)
 {
     if (sceneName.empty())
+    {
+        ShowPopup("Save Error", "Scene name cannot be empty!");
         return;
+    }
 
     std::string filepath = SceneSerializer::GetSceneDirectory() + "/" + sceneName;
     if (filepath.find(".scene") == std::string::npos)
@@ -119,7 +130,10 @@ void SceneManagerPanel::SaveCurrentScene(const std::string& sceneName)
 void SceneManagerPanel::LoadSelectedScene(const std::string& sceneName)
 {
     if (sceneName.empty())
+    {
+        ShowPopup("Load Error", "No scene selected!");
         return;
+    }
 
     std::string filepath = SceneSerializer::GetSceneDirectory() + "/" + sceneName;
 
@@ -127,5 +141,37 @@ void SceneManagerPanel::LoadSelectedScene(const std::string& sceneName)
     {
         editorManager->RequestLoadScene(filepath);
         selectionManager->ClearSelection();
+    }
+}
+
+void SceneManagerPanel::ShowPopup(const std::string& title, const std::string& message)
+{
+    popupTitle = title;
+    popupMessage = message;
+    showPopup = true;
+}
+
+void SceneManagerPanel::DrawPopup()
+{
+    if (showPopup)
+    {
+        ImGui::OpenPopup(popupTitle.c_str());
+        showPopup = false;
+    }
+
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Appearing);
+
+    if (ImGui::BeginPopupModal(popupTitle.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::TextWrapped("%s", popupMessage.c_str());
+        ImGui::Separator();
+
+        if (ImGui::Button("OK", ImVec2(120, 0)))
+        {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
     }
 }

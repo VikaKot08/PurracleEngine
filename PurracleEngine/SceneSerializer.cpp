@@ -143,7 +143,7 @@ bool SceneSerializer::SaveScene(Scene* scene, const std::string& filepath)
         file.write((const char*)(&isMainCamera), sizeof(bool));
         file.write((const char*)(&cam->isActive), sizeof(bool));
 
-        // Parent index (cameras can also have parents)
+        // Parent index
         int32_t parentIndex = -1;
         if (cam->parent)
         {

@@ -248,6 +248,8 @@
     <None Include="Assets\Shaders\CubeVertex.glsl" />
     <None Include="Assets\Shaders\CubeFragment.glsl" />
     <None Include="Assets\Shaders\FragmentShader.glsl" />
+    <None Include="Assets\Shaders\PhongFragment.glsl" />
+    <None Include="Assets\Shaders\PhongVertex.glsl" />
     <None Include="Assets\Shaders\TriangleFragment.glsl" />
     <None Include="Assets\Shaders\TriangleVertex.glsl" />
     <None Include="Assets\Shaders\VertexShader.glsl" />

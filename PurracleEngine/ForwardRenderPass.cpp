@@ -2,7 +2,7 @@
 
 ForwardRenderPass::ForwardRenderPass()
 {
-	myShader = new Shader("Assets/Shaders/VertexShader.glsl", "Assets/Shaders/FragmentShader.glsl");
+	myShader = new Shader("Assets/Shaders/PhongVertex.glsl", "Assets/Shaders/PhongFragment.glsl");
 }
 
 void ForwardRenderPass::Execute(Scene& aScene) 

@@ -332,5 +332,11 @@
     <None Include="Assets\Shaders\TriangleVertex.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="Assets\Shaders\PhongVertex.glsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Assets\Shaders\PhongFragment.glsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

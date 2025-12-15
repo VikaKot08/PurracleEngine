@@ -31,8 +31,9 @@ public:
     void SetScene(Scene* scn);
     void SetEditorManager(EditorManager* em);
     void SetFrameBuffer(FrameBuffer* fb);
-    float GetViewportWidth();
     float GetViewportHeight();
+    float GetViewportWidth();
+    Scene* GetScene();
 
 protected:
     void ProcessMessage(Message* aMessage) override;

@@ -17,8 +17,8 @@
 #include "ImGuizmo.h"
 #include <stb_image.h>
 #include <iostream>
+#include <GLFW/glfw3.h>
 
-// Style functions
 void SetPurracleDarkStyle()
 {
     ImGuiStyle& style = ImGui::GetStyle();
@@ -262,10 +262,19 @@ void GuiManager::ProcessMessage(Message* aMessage)
 
         if (completeMsg->success)
         {
-            ShowPopup(title, completeMsg->message);
+            if (sceneManagerPanel)
+            {
+                sceneManagerPanel->ShowPopup(title, completeMsg->message);
+            }
 
             if (completeMsg->operation == "load")
             {
+                // Refresh scene list after loading
+                if (sceneManagerPanel)
+                {
+                    sceneManagerPanel->RefreshSceneList();
+                }
+
                 if (modelList && !modelList->empty())
                 {
                     selectionManager->Select(modelList->at(0));
@@ -278,7 +287,10 @@ void GuiManager::ProcessMessage(Message* aMessage)
         }
         else
         {
-            ShowPopup(title + " Error", completeMsg->message);
+            if (sceneManagerPanel)
+            {
+                sceneManagerPanel->ShowPopup(title + " Error", completeMsg->message);
+            }
         }
     }
     else if (aMessage->type == MessageType::Memory)
@@ -334,4 +346,9 @@ float GuiManager::GetViewportHeight()
 float GuiManager::GetViewportWidth()
 {
     return viewportPanel->GetViewportSize().x;
+}
+
+Scene* GuiManager::GetScene()
+{
+    return scene;
 }

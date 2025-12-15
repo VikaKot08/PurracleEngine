@@ -100,6 +100,13 @@ void InspectorPanel::DrawNormalModelControls(Model* model)
     if (ImGui::Button("Convert to camera", ImVec2(-1, 0)))
     {
         ConvertToCamera(model);
+        return;
+    }
+
+    if (ImGui::Button("Convert to light", ImVec2(-1, 0)))
+    {
+        ConvertToLight(model);
+        return;
     }
 
     ImGui::Spacing();
@@ -139,6 +146,8 @@ void InspectorPanel::DrawNormalModelControls(Model* model)
         UpdateSelectedModelTransform();
     }
 
+    model->meshIndex = assetBrowser->FindMeshIndex(model->path);
+
     ImGui::Spacing();
     ImGui::SeparatorText("Mesh");
 
@@ -148,6 +157,8 @@ void InspectorPanel::DrawNormalModelControls(Model* model)
     {
         editorManager->RequestLoadMesh(model, assetBrowser->GetMeshes()[model->meshIndex]);
     }
+
+    model->textureIndex = assetBrowser->FindTextureIndex(model->pathTex);
 
     ImGui::Spacing();
     ImGui::SeparatorText("Texture");
@@ -324,6 +335,40 @@ void InspectorPanel::ConvertToCamera(Model* model)
     newCamera->scale = glm::vec3{ 1.0f };
     newCamera->SyncRotationToYawPitch();
     newCamera->name = model->name + " (Camera)";
+    newCamera->path = "Assets/Models/Camera.obj";
+    newCamera->pathTex = "Assets/Textures/Camera.jpg";
+    newCamera->isActive = false;
+
+
+    editorManager->RequestLoadMesh(newCamera, "Assets/Models/Camera.obj");
+    editorManager->ChangeTexture(newCamera, "Assets/Textures/Camera.jpg");
+
+    modelList->push_back(newCamera);
+    scene->AddRenderable(newCamera);
+    selectionManager->Select(newCamera);
+
+    // Delete the old model
+    auto it = std::find(modelList->begin(), modelList->end(), model);
+    if (it != modelList->end())
+    {
+        scene->DeleteModel(model);
+        modelList->erase(it);
+    }
+
+    scene->BuildEmbreeScene();
+}
+
+void InspectorPanel::ConvertToLight(Model* model)
+{
+    Camera* newLight = new Camera();
+    newLight->SetPosition(model->position);
+    newLight->rotation = model->rotation;
+    newLight->scale = glm::vec3{ 1.0f };
+    newLight->SyncRotationToYawPitch();
+    newLight->name = model->name + " (Light)";
+
+
+    selectionManager->Select(newLight);
 
     // Delete the old model
     auto it = std::find(modelList->begin(), modelList->end(), model);
@@ -334,12 +379,11 @@ void InspectorPanel::ConvertToCamera(Model* model)
     }
 
     // Add new camera
-    selectionManager->Select(newCamera);
-    editorManager->RequestLoadMesh(newCamera, "Assets/Models/Camera.obj");
-    editorManager->ChangeTexture(newCamera, "Assets/Textures/Camera.jpg");
+    editorManager->RequestLoadMesh(newLight, "Assets/Models/Light.obj");
+    editorManager->ChangeTexture(newLight, "Assets/Textures/Light.png");
 
-    modelList->push_back(newCamera);
-    scene->AddRenderable(newCamera);
+    modelList->push_back(newLight);
+    scene->AddRenderable(newLight);
     scene->BuildEmbreeScene();
 }
 

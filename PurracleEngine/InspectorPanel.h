@@ -40,6 +40,7 @@ private:
     void DrawCameraControls(Model* model);
     void DeleteSelectedModel();
     void ConvertToCamera(Model* model);
+    void ConvertToLight(Model* model);
 
     static float WrapAngle(float angle);
 };

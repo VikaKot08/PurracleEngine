@@ -50,7 +50,6 @@ void ViewportPanel::Draw()
     ImGui::End();
     ImGui::PopStyleVar();
 
-    // Handle gizmo operation keys
     if (ImGui::IsKeyPressed(ImGuiKey_T)) sGizmoOperation = ImGuizmo::TRANSLATE;
     if (ImGui::IsKeyPressed(ImGuiKey_R)) sGizmoOperation = ImGuizmo::ROTATE;
     if (ImGui::IsKeyPressed(ImGuiKey_Y)) sGizmoOperation = ImGuizmo::SCALE;
