@@ -151,6 +151,7 @@
     <ClCompile Include="..\imgui\imgui_stdlib.cpp" />
     <ClCompile Include="..\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="AssetBrowser.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="EditorManager.cpp" />
@@ -161,7 +162,9 @@
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GuiManager.cpp" />
+    <ClCompile Include="HierarchyPanel.cpp" />
     <ClCompile Include="ImGuizmo.cpp" />
+    <ClCompile Include="InspectorPanel.cpp" />
     <ClCompile Include="LoadMeshMessage.cpp" />
     <ClCompile Include="LoadSceneMessage.cpp" />
     <ClCompile Include="main.cpp" />
@@ -177,12 +180,15 @@
     <ClCompile Include="RenderPass.cpp" />
     <ClCompile Include="SaveSceneMessage.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneManagerPanel.cpp" />
     <ClCompile Include="SceneOperationCompleteMessage.cpp" />
     <ClCompile Include="SceneSerializer.cpp" />
+    <ClCompile Include="SelectionManager.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Triangle.cpp" />
+    <ClCompile Include="ViewportPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imconfig.h" />
@@ -195,6 +201,7 @@
     <ClInclude Include="..\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\imgui\imstb_textedit.h" />
     <ClInclude Include="..\imgui\imstb_truetype.h" />
+    <ClInclude Include="AssetBrowser.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="EditorManager.h" />
@@ -204,7 +211,9 @@
     <ClInclude Include="ForwardRenderPass.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="GuiManager.h" />
+    <ClInclude Include="HierarchyPanel.h" />
     <ClInclude Include="ImGuizmo.h" />
+    <ClInclude Include="InspectorPanel.h" />
     <ClInclude Include="LoadMeshMessage.h" />
     <ClInclude Include="LoadSceneMessage.h" />
     <ClInclude Include="MemoryMessage.h" />
@@ -220,11 +229,14 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="SaveSceneMessage.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneManagerPanel.h" />
     <ClInclude Include="SceneOperationCompleteMessage.h" />
     <ClInclude Include="SceneSerializer.h" />
+    <ClInclude Include="SelectionManager.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Triangle.h" />
+    <ClInclude Include="ViewportPanel.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PurracleEngine.rc" />

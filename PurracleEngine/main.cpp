@@ -16,6 +16,7 @@
 
 #include <chrono>
 #include <filesystem>
+#include <imgui.h>
 
 auto lastTime = std::chrono::high_resolution_clock::now();
 
@@ -252,11 +253,9 @@ int main()
     editorManager->SetModelList(&models);
 
     gui->SetModelList(&models);
-    gui->SetScene(scene);
     gui->SetFrameBuffer(frameBuffer);
     gui->SetEditorManager(editorManager);
-
-    gui->RefreshAssets();
+    gui->SetScene(scene);
 
     std::string autoLoadScene = "Assets/Scenes/Default.scene";
     if (std::filesystem::exists(autoLoadScene))
@@ -280,11 +279,6 @@ int main()
         }
     }
 
-    if (!models.empty())
-    {
-        gui->SelectModel(models[0]);
-    }
-
     while (!glfwWindowShouldClose(window))
     {
         if (!glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT)) {
@@ -293,7 +287,7 @@ int main()
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> delta = currentTime - lastTime;
-        float deltaTime = delta.count(); // seconds
+        float deltaTime = delta.count();
         lastTime = currentTime;
 
         processInput(window, scene, deltaTime);
@@ -306,6 +300,7 @@ int main()
             scene->GetCamera()->SetAspectRatio((float)viewportWidth, (float)viewportHeight);
         }
 
+        // Render to framebuffer
         frameBuffer->Bind();
         glViewport(0, 0, frameBuffer->GetWidth(), frameBuffer->GetHeight());
         glClearColor(0.314f, 0.290f, 0.439f, 1.0f);
@@ -315,6 +310,7 @@ int main()
 
         frameBuffer->Unbind();
 
+        // Render GUI
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

@@ -1,109 +1,66 @@
 #pragma once
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <vector>
-#include <string>
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
 #include "MessageQueue.h"
+#include <memory>
+#include <string>
+#include <vector>
 
 class Model;
-class Camera;
-class FrameBuffer;
 class Scene;
-class Renderable;
+class FrameBuffer;
 class EditorManager;
+class SelectionManager;
+class AssetBrowser;
+class HierarchyPanel;
+class InspectorPanel;
+class ViewportPanel;
+class SceneManagerPanel;
+struct GLFWwindow;
 
 class GuiManager : public MessageQueue
 {
 public:
+    GuiManager();
+    ~GuiManager();
+
     void Start(GLFWwindow* aWindow);
     void Update(GLFWwindow* aWindow);
     void Close();
-    void SetIcon(GLFWwindow* aWindow);
 
+    void SetIcon(GLFWwindow* aWindow);
     void SetModelList(std::vector<Model*>* models);
     void SetScene(Scene* scn);
-    void SetFrameBuffer(FrameBuffer* fb);
     void SetEditorManager(EditorManager* em);
+    void SetFrameBuffer(FrameBuffer* fb);
+    float GetViewportWidth();
+    float GetViewportHeight();
 
-    void SelectModel(Model* model);
-
-
-    int GetViewportWidth() const { return (int)viewportSize.x; }
-    int GetViewportHeight() const { return (int)viewportSize.y; }
-
-    void AddModel();
-    void DeleteSelectedModel();
-    void ChangeMesh(const std::string& meshPath);
-    void ChangeTexture(const std::string& texturePath);
-
-    std::vector<Model*>* GetModelList() { return modelList; }
-    int FindMeshIndex(const std::string& meshPath);
-    int FindTextureIndex(const std::string& meshPath);
-    void UpdateModelIndices();
-
-    void RefreshAssets();
-
-    bool showPopup = false;
-    std::string popupTitle = "";
-    std::string popupMessage = "";
+protected:
+    void ProcessMessage(Message* aMessage) override;
 
 private:
-    std::vector<Model*>* modelList = nullptr;
+    // Core components
+    Scene* scene;
     EditorManager* editorManager;
-    Scene* scene = nullptr;
-    Camera* camera = nullptr;
-    FrameBuffer* frameBuffer = nullptr;
-    Model* selectedModel = nullptr;
+    FrameBuffer* frameBuffer;
+    std::vector<Model*>* modelList;
 
-    glm::vec3 positionVec = glm::vec3(0.0f);
-    glm::vec3 rotationVec = glm::vec3(0.0f);
-    glm::vec3 rotationVecInput = glm::vec3(0.0f);
-    glm::vec3 scaleVec = glm::vec3(1.0f);
+    // Shared managers
+    std::unique_ptr<SelectionManager> selectionManager;
+    std::unique_ptr<AssetBrowser> assetBrowser;
 
-    bool m_viewportHovered = false;
-    ImVec2 viewportPos;
-    ImVec2 viewportSize;
+    // UI Panels
+    std::unique_ptr<HierarchyPanel> hierarchyPanel;
+    std::unique_ptr<InspectorPanel> inspectorPanel;
+    std::unique_ptr<ViewportPanel> viewportPanel;
+    std::unique_ptr<SceneManagerPanel> sceneManagerPanel;
 
-    void DrawSceneHierarchy();
-    void DrawTransformControls();
-    void ApplyGizmosAndTransform();
-    void DrawViewport();
-    void HandleMouseClick(GLFWwindow* window);
-    void UpdateSelectedModelTransform();
-    void DrawModelNode(Renderable* model);
+    // Popup system
+    bool showPopup;
+    std::string popupTitle;
+    std::string popupMessage;
 
-    float WrapAngle(float angle);
-
-    std::vector<std::string> availableTextures = {"Assets/Textures/Cube.png","Assets/Textures/PurpleLava.jpg","Assets/Textures/RedLava.png", "Assets/Textures/Purple.png","Assets/Textures/Blue.png","Assets/Textures/Beige.png"};
-
-    std::vector<std::string> availableMeshes = {"Assets/Models/Cube.obj","Assets/Models/CubePrimitive.obj","Assets/Models/CylinderPrimitive.obj"};
-
-    void SaveOptimizedMesh(Model* aModel);
-
-    std::vector<const char*> meshNames;
-    std::vector<const char*> textureNames;
-
-    void UpdateFileNames();
-
-    std::vector<std::string> meshFilenames;
-    std::vector<std::string> textureFilenames;
-
-    int selectedMeshIndex = 0;
-    int selectedTextureIndex = 0;
-
-    void ProcessMessage(Message* aMessage) override;
-    void ShowPopup(const std::string& title, const std::string& message);
+    void InitializePanels();
+    void DrawDockSpace();
     void DrawPopup();
-
-    std::vector<std::string> availableScenes;
-    int selectedSceneIndex = -1;
-    char newSceneName[256] = "NewScene";
-
-    void DrawSceneManager();
-    void RefreshSceneList();
-    void SaveCurrentScene(const std::string& sceneName);
-    void LoadSelectedScene(const std::string& sceneName);
+    void ShowPopup(const std::string& title, const std::string& message);
 };
