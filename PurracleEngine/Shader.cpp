@@ -145,6 +145,11 @@ void Shader::SetInt(int aInt, const std::string& aName)
 	glUniform1i(glGetUniformLocation(myShaderProgram, aName.c_str()), aInt);
 }
 
+void Shader::SetEyePosition(glm::vec3 aPosition)
+{
+	glUniform3fv(glGetUniformLocation(myShaderProgram, "eyePosition"), 1, &aPosition[0]);
+}
+
 void Shader::SetLight(int index, const Light& light) 
 {
 	std::string base = "lights[" + std::to_string(index) + "].";

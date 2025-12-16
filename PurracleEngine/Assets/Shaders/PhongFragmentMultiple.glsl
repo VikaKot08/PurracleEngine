@@ -24,7 +24,7 @@ uniform int numLights;
 uniform vec4 MaterialAmbient = vec4(1, 1, 1, 1);
 uniform vec4 MaterialDiffuse = vec4(1, 1, 1, 1);
 uniform vec4 MaterialSpecular = vec4(1, 1, 1, 1);
-uniform int MaterialShine = 8;
+uniform int MaterialShine = 3;
 
 out vec4 FragColor;
 
@@ -35,7 +35,10 @@ in vec3 VecToEye;
 
 uniform sampler2D myTexture;
 
-vec3 calculateLight(Light light, vec3 normal, vec3 viewDir, vec3 baseColor) {
+uniform sampler2D specularMap;  
+uniform bool useSpecularMap = true;
+
+vec3 calculateLight(Light light, vec3 normal, vec3 viewDir, vec3 baseColor, vec3 specularColor) {
     vec3 lightDir;
     float attenuation = 1.0;
     
@@ -55,7 +58,6 @@ vec3 calculateLight(Light light, vec3 normal, vec3 viewDir, vec3 baseColor) {
             float intensity = clamp((theta - cos(radians(light.outerCutoffAngle))) / epsilon, 0.0, 1.0);
             attenuation *= intensity;
             
-            // Early exit if outside cone
             if (theta < cos(radians(light.outerCutoffAngle))) {
                 return vec3(0.0);
             }
@@ -70,12 +72,9 @@ vec3 calculateLight(Light light, vec3 normal, vec3 viewDir, vec3 baseColor) {
     vec3 halfDir = normalize(lightDir + viewDir);
     float spec = max(dot(normal, halfDir), 0.0);
     
-    float specPower = spec;
-    for(int i = 1; i < MaterialShine; ++i) {
-        specPower *= spec;
-    }
+    float specPower = pow(spec, float(MaterialShine));
     
-    vec3 specular = specPower * light.specular.rgb * MaterialSpecular.rgb;
+    vec3 specular = specPower * light.specular.rgb * MaterialSpecular.rgb * specularColor;
     
     return (ambient + diffuse + specular) * attenuation;
 }
@@ -83,6 +82,14 @@ vec3 calculateLight(Light light, vec3 normal, vec3 viewDir, vec3 baseColor) {
 void main()
 {
     vec3 baseColor = texture(myTexture, TextureCoord).rgb;
+
+    vec3 specularColor;
+    if (useSpecularMap) {
+        specularColor = texture(specularMap, TextureCoord).rgb;
+    } else {
+        specularColor = vec3(1.0);
+    }
+
     vec3 normal = normalize(Normal);
     vec3 viewDir = normalize(VecToEye);
     
@@ -90,7 +97,7 @@ void main()
     
     for(int i = 0; i < numLights && i < MAX_LIGHTS; ++i) {
         if (lights[i].enabled) {
-            result += calculateLight(lights[i], normal, viewDir, baseColor);
+            result += calculateLight(lights[i], normal, viewDir, baseColor, specularColor);
         }
     }
     

@@ -132,6 +132,7 @@ void ViewportPanel::ApplyGizmosAndTransform()
             } else if(selectedModel->type == ModelType::LightModel) 
             {
                 Light* selectedLight = dynamic_cast<Light*>(selectedModel);
+                selectedLight->UpdateDirectionFromRotation();
                 selectedLight->dirty = true;
             }
         }

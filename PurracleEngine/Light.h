@@ -22,5 +22,7 @@ public:
     float outerCutoffAngle;
     bool enabled;
     bool dirty;
+
+    void UpdateDirectionFromRotation();
 };
 

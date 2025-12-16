@@ -14,6 +14,7 @@ void ForwardRenderPass::Execute(Scene& aScene)
 
 	myShader->SetMatrix4(view, "view");
 	myShader->SetMatrix4(proj, "projection");
+	myShader->SetEyePosition(aScene.GetCamera()->position);
 
 	for(auto& object : aScene.renderables)
 	{

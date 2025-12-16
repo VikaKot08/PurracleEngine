@@ -6,7 +6,7 @@ layout (location = 2) in vec2 aTextureCoord;
 uniform mat4 transform;
 uniform mat4 view;
 uniform mat4 projection;
-uniform vec4 eyePosition = vec4(0.0, 5.0, 0.0, 0.0);
+uniform vec3 eyePosition;
 
 out vec2 TextureCoord;
 out vec3 Normal;
@@ -23,5 +23,5 @@ void main()
     Normal = mat3(transpose(inverse(transform))) * aNormal;
 
     VertexPosition = (transform * vec4(aPos, 1.0)).xyz;
-    VecToEye = eyePosition.xyz - VertexPosition;
+    VecToEye = eyePosition - VertexPosition;
 }

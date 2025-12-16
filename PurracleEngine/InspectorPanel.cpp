@@ -78,9 +78,9 @@ void InspectorPanel::UpdateSelectedModelTransform()
     Model* selected = selectionManager->GetSelected();
     if (selected)
     {
-        selected->position = positionVec;
+        //selected->position = positionVec;
         selected->SetRotationFromEuler(rotationVec);
-        selected->scale = scaleVec;
+        //selected->scale = scaleVec;
 
         if (scene) {
             scene->MarkDirty();
@@ -119,11 +119,12 @@ void InspectorPanel::DrawNormalModelControls(Model* model)
     ImGui::Spacing();
 
     ImGui::Text("Position");
-    if (ImGui::InputFloat3("##Position", glm::value_ptr(positionVec)))
+    if (ImGui::InputFloat3("##Position", glm::value_ptr(model->position)))
     {
         UpdateSelectedModelTransform();
     }
 
+    rotationVecInput = model->rotation;
     ImGui::Text("Rotation (degrees)");
     if (ImGui::InputFloat3("##Rotation", glm::value_ptr(rotationVecInput)))
     {
@@ -146,7 +147,7 @@ void InspectorPanel::DrawNormalModelControls(Model* model)
     }
 
     ImGui::Text("Scale");
-    if (ImGui::InputFloat3("##Scale", glm::value_ptr(scaleVec)))
+    if (ImGui::InputFloat3("##Scale", glm::value_ptr(model->scale)))
     {
         UpdateSelectedModelTransform();
     }
@@ -212,20 +213,18 @@ void InspectorPanel::DrawCameraControls(Model* model)
     ImGui::Separator();
     ImGui::Spacing();
 
-    positionVec = selectedCamera->position;
-
     if (selectedCamera == scene->mainCamera)
     {
         selectedCamera->SyncYawPitchToRotation();
     }
-    rotationVecInput = selectedCamera->rotation;
 
     ImGui::Text("Position");
-    if (ImGui::InputFloat3("##Position", glm::value_ptr(positionVec)))
+    if (ImGui::InputFloat3("##Position", glm::value_ptr(model->position)))
     {
         UpdateSelectedModelTransform();
     }
 
+    rotationVecInput = model->rotation;
     ImGui::Text("Rotation (degrees)");
     if (ImGui::InputFloat3("##Rotation", glm::value_ptr(rotationVecInput)))
     {
@@ -345,6 +344,19 @@ void InspectorPanel::DrawLightControls(Model* model)
     if (ImGui::Combo("##LightType", &currentType, lightTypes, 3))
     {
         light->typeLight = static_cast<LightType>(currentType);
+        if (currentType == LightType::DirectionalLight)
+        {
+            editorManager->RequestLoadMesh(light, "Assets/Models/Light.obj");
+            editorManager->ChangeTexture(light, "Assets/Textures/Light.png");
+        } else if (currentType == LightType::SpotLight)
+        {
+            editorManager->RequestLoadMesh(light, "Assets/Models/Light.obj");
+            editorManager->ChangeTexture(light, "Assets/Textures/Light.png");
+        } else 
+        {
+            editorManager->RequestLoadMesh(light, "Assets/Models/PointLight.obj");
+            editorManager->ChangeTexture(light, "Assets/Textures/PointLight.png");
+        }
         light->dirty = true;
     }
 
@@ -354,20 +366,37 @@ void InspectorPanel::DrawLightControls(Model* model)
     if (light->typeLight == PointLight || light->typeLight == SpotLight)
     {
         ImGui::Text("Position");
-        if (ImGui::InputFloat3("##Position", glm::value_ptr(positionVec)))
+        if (ImGui::InputFloat3("##Position", glm::value_ptr(model->position)))
         {
             UpdateSelectedModelTransform();
             light->dirty = true;
         }
     }
 
-    // Direction (for directional and spot lights)
+    rotationVecInput = light->rotation;
+
     if (light->typeLight == DirectionalLight || light->typeLight == SpotLight)
     {
-        ImGui::Text("Direction");
-        if (ImGui::InputFloat3("##Direction", glm::value_ptr(light->direction)))
+        ImGui::Text("Rotation (degrees)");
+        if (ImGui::InputFloat3("##Rotation", glm::value_ptr(rotationVecInput)))
         {
-            light->dirty = true;
+            float maxSafe = 1e6f;
+            for (int i = 0; i < 3; i++)
+            {
+                if (rotationVecInput[i] > maxSafe) rotationVecInput[i] = maxSafe;
+                if (rotationVecInput[i] < -maxSafe) rotationVecInput[i] = -maxSafe;
+            }
+
+            rotationVec.x = WrapAngle(rotationVecInput.x);
+            rotationVec.y = WrapAngle(rotationVecInput.y);
+            rotationVec.z = WrapAngle(rotationVecInput.z);
+
+            rotationVecInput.x = WrapAngle(rotationVecInput.x);
+            rotationVecInput.y = WrapAngle(rotationVecInput.y);
+            rotationVecInput.z = WrapAngle(rotationVecInput.z);
+
+            UpdateSelectedModelTransform();
+            light->UpdateDirectionFromRotation();
         }
     }
 
@@ -535,7 +564,7 @@ void InspectorPanel::ConvertToCamera(Model* model)
 void InspectorPanel::ConvertToLight(Model* model)
 {
     Light* newLight = new Light(DirectionalLight);
-    newLight->direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+    newLight->direction = glm::vec3(0.0f, 0.0f, 1.0f);
     newLight->ambient = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
     newLight->diffuse = glm::vec4(0.8f, 0.8f, 0.7f, 1.0f);
     newLight->specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -559,6 +588,8 @@ void InspectorPanel::ConvertToLight(Model* model)
         scene->DeleteModel(model);
         modelList->erase(it);
     }
+
+    newLight->UpdateDirectionFromRotation();
 
     editorManager->RequestLoadMesh(newLight, "Assets/Models/Light.obj");
     editorManager->ChangeTexture(newLight, "Assets/Textures/Light.png");
