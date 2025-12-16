@@ -7,6 +7,7 @@
 #include <vector>
 
 class Model;
+class Light;
 
 class Scene
 {
@@ -29,6 +30,7 @@ public:
     void InitializeDefaultModels();
     void SetCamera(Camera* aCamera);
     void SetMainCamera(Camera* aCamera);
+    std::vector<Light*> GetLight();
 
     std::vector<Renderable*> renderables;
 

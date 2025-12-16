@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <glm/glm.hpp>
+class Light;
 
 class Shader
 {
@@ -12,10 +13,11 @@ public:
 	Shader(const char* aVertexPath, const char* aFragmentPath);
 	unsigned int myShaderProgram;
 	void Initialize(const char* aVertexPath, const char* aFragmentPath);
-	void Use();
+	void Use(std::vector<Light*> lights);
 	void EndUse();
 	~Shader();
 	void SetMatrix4(glm::mat4 aMatrix, const std::string& aName);
 	void SetInt(int aInt, const std::string& aName);
+	void SetLight(int index, const Light& light);
 };
 

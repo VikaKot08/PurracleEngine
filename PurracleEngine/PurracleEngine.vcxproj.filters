@@ -162,6 +162,9 @@
     <ClCompile Include="SceneManagerPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\imgui_impl_glfw.h">
@@ -302,6 +305,9 @@
     <ClInclude Include="SceneManagerPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PurracleEngine.rc">
@@ -336,6 +342,9 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="Assets\Shaders\PhongFragment.glsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Assets\Shaders\PhongFragmentMultiple.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

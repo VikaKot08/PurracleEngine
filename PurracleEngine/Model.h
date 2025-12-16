@@ -7,7 +7,8 @@
 enum ModelType
 {
 	CameraModel,
-	Normal
+	Normal,
+	LightModel
 };
 struct Position
 {

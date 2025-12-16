@@ -165,6 +165,7 @@
     <ClCompile Include="HierarchyPanel.cpp" />
     <ClCompile Include="ImGuizmo.cpp" />
     <ClCompile Include="InspectorPanel.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="LoadMeshMessage.cpp" />
     <ClCompile Include="LoadSceneMessage.cpp" />
     <ClCompile Include="main.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="HierarchyPanel.h" />
     <ClInclude Include="ImGuizmo.h" />
     <ClInclude Include="InspectorPanel.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="LoadMeshMessage.h" />
     <ClInclude Include="LoadSceneMessage.h" />
     <ClInclude Include="MemoryMessage.h" />
@@ -249,6 +251,7 @@
     <None Include="Assets\Shaders\CubeFragment.glsl" />
     <None Include="Assets\Shaders\FragmentShader.glsl" />
     <None Include="Assets\Shaders\PhongFragment.glsl" />
+    <None Include="Assets\Shaders\PhongFragmentMultiple.glsl" />
     <None Include="Assets\Shaders\PhongVertex.glsl" />
     <None Include="Assets\Shaders\TriangleFragment.glsl" />
     <None Include="Assets\Shaders\TriangleVertex.glsl" />

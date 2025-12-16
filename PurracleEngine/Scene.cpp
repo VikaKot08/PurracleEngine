@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "Model.h"
+#include "Light.h"
 #include <cstring>
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
@@ -22,6 +23,19 @@ Scene::Scene()
     if (!embreeDevice) {
         std::cerr << "Failed to create Embree device" << std::endl;
     }
+}
+
+std::vector<Light*> Scene::GetLight()
+{
+    std::vector<Light*> lights;
+    for (Renderable* renderable : renderables) {
+        Light* light = dynamic_cast<Light*>(renderable);
+        if (light) 
+        {
+            lights.push_back(light);
+        }
+    }
+    return lights;
 }
 
 void Scene::SetMeshManager(MeshManager* aManager)

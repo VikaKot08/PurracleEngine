@@ -2,12 +2,12 @@
 
 ForwardRenderPass::ForwardRenderPass()
 {
-	myShader = new Shader("Assets/Shaders/PhongVertex.glsl", "Assets/Shaders/PhongFragment.glsl");
+	myShader = new Shader("Assets/Shaders/PhongVertex.glsl", "Assets/Shaders/PhongFragmentMultiple.glsl");
 }
 
 void ForwardRenderPass::Execute(Scene& aScene) 
 {
-	myShader->Use();
+	myShader->Use(aScene.GetLight());
 
 	glm::mat4 view = aScene.GetCamera()->GetView();
 	glm::mat4 proj = aScene.GetCamera()->GetProjection();
@@ -22,3 +22,5 @@ void ForwardRenderPass::Execute(Scene& aScene)
 
 	myShader->EndUse();
 }
+
+

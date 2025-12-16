@@ -5,6 +5,8 @@
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Light.h"
+
 Shader::Shader(const char* aVertexPath, const char* aFragmentPath) 
 {
 	Initialize(aVertexPath, aFragmentPath);
@@ -107,9 +109,20 @@ void Shader::Initialize(const char* aVertexPath, const char* aFragmentPath)
 	glDeleteShader(FragmentShader);
 }
 
-void Shader::Use()
+void Shader::Use(std::vector<Light*> lights)
 {
 	glUseProgram(myShaderProgram);
+	int numLights = 0;
+	for (Light* light : lights) 
+	{
+		if(light->dirty)
+		{
+			SetLight(numLights, *light);
+			light->dirty = false;
+		}
+		numLights++;
+	}
+	glUniform1i(glGetUniformLocation(myShaderProgram, "numLights"), numLights);
 }
 
 void Shader::EndUse()
@@ -130,4 +143,20 @@ void Shader::SetMatrix4(glm::mat4 aMatrix, const std::string& aName)
 void Shader::SetInt(int aInt, const std::string& aName)
 {
 	glUniform1i(glGetUniformLocation(myShaderProgram, aName.c_str()), aInt);
+}
+
+void Shader::SetLight(int index, const Light& light) 
+{
+	std::string base = "lights[" + std::to_string(index) + "].";
+
+	glUniform1i(glGetUniformLocation(myShaderProgram, (base + "type").c_str()), light.typeLight);
+	glUniform3fv(glGetUniformLocation(myShaderProgram, (base + "position").c_str()), 1, &light.position[0]);
+	glUniform3fv(glGetUniformLocation(myShaderProgram, (base + "direction").c_str()), 1, &light.direction[0]);
+	glUniform4fv(glGetUniformLocation(myShaderProgram, (base + "ambient").c_str()), 1, &light.ambient[0]);
+	glUniform4fv(glGetUniformLocation(myShaderProgram, (base + "diffuse").c_str()), 1, &light.diffuse[0]);
+	glUniform4fv(glGetUniformLocation(myShaderProgram, (base + "specular").c_str()), 1, &light.specular[0]);
+	glUniform3fv(glGetUniformLocation(myShaderProgram, (base + "attenuation").c_str()), 1, &light.attenuation[0]);
+	glUniform1f(glGetUniformLocation(myShaderProgram, (base + "cutoffAngle").c_str()), light.cutoffAngle);
+	glUniform1f(glGetUniformLocation(myShaderProgram, (base + "outerCutoffAngle").c_str()), light.outerCutoffAngle);
+	glUniform1i(glGetUniformLocation(myShaderProgram, (base + "enabled").c_str()), light.enabled);
 }

@@ -38,6 +38,7 @@ private:
     void UpdateSelectedModelTransform();
     void DrawNormalModelControls(Model* model);
     void DrawCameraControls(Model* model);
+    void DrawLightControls(Model* model);
     void DeleteSelectedModel();
     void ConvertToCamera(Model* model);
     void ConvertToLight(Model* model);

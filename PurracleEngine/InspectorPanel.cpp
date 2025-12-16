@@ -5,6 +5,7 @@
 #include "EditorManager.h"
 #include "AssetBrowser.h"
 #include "Scene.h"
+#include "Light.h"
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <cstring>
@@ -46,6 +47,10 @@ void InspectorPanel::Draw()
         else if (selected->type == ModelType::CameraModel)
         {
             DrawCameraControls(selected);
+        }
+        else if (selected->type == ModelType::LightModel)
+        {
+            DrawLightControls(selected);
         }
     }
     else
@@ -312,6 +317,175 @@ void InspectorPanel::DrawCameraControls(Model* model)
     }
 }
 
+void InspectorPanel::DrawLightControls(Model* model)
+{
+    Light* light = dynamic_cast<Light*>(model);
+    if (!light) return;
+
+    ImGui::Text("Light Name");
+    char nameBuf[256];
+    strncpy_s(nameBuf, sizeof(nameBuf), model->name.c_str(), _TRUNCATE);
+
+    if (ImGui::InputText("##LightName", nameBuf, sizeof(nameBuf)))
+    {
+        if (!std::string(nameBuf).empty())
+        {
+            model->name = std::string(nameBuf);
+        }
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    // Light Type
+    ImGui::Text("Light Type");
+    const char* lightTypes[] = { "Directional", "Point", "Spot" };
+    int currentType = static_cast<int>(light->typeLight);
+    if (ImGui::Combo("##LightType", &currentType, lightTypes, 3))
+    {
+        light->typeLight = static_cast<LightType>(currentType);
+        light->dirty = true;
+    }
+
+    ImGui::Spacing();
+
+    // Position (for point and spot lights)
+    if (light->typeLight == PointLight || light->typeLight == SpotLight)
+    {
+        ImGui::Text("Position");
+        if (ImGui::InputFloat3("##Position", glm::value_ptr(positionVec)))
+        {
+            UpdateSelectedModelTransform();
+            light->dirty = true;
+        }
+    }
+
+    // Direction (for directional and spot lights)
+    if (light->typeLight == DirectionalLight || light->typeLight == SpotLight)
+    {
+        ImGui::Text("Direction");
+        if (ImGui::InputFloat3("##Direction", glm::value_ptr(light->direction)))
+        {
+            light->dirty = true;
+        }
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    ImGui::Text("Ambient Color");
+    if (ImGui::ColorEdit4("##Ambient", glm::value_ptr(light->ambient)))
+    {
+        light->dirty = true;
+    }
+
+    ImGui::Text("Diffuse Color");
+    if (ImGui::ColorEdit4("##Diffuse", glm::value_ptr(light->diffuse)))
+    {
+        light->dirty = true;
+    }
+
+    ImGui::Text("Specular Color");
+    if (ImGui::ColorEdit4("##Specular", glm::value_ptr(light->specular)))
+    {
+        light->dirty = true;
+    }
+
+    // Attenuation (for point and spot lights)
+    if (light->typeLight == PointLight || light->typeLight == SpotLight)
+    {
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        ImGui::Text("Attenuation");
+        ImGui::Text("Constant");
+        if (ImGui::SliderFloat("##AttConst", &light->attenuation.x, 0.0f, 2.0f))
+        {
+            light->dirty = true;
+        }
+
+        ImGui::Text("Linear");
+        if (ImGui::SliderFloat("##AttLinear", &light->attenuation.y, 0.0f, 1.0f))
+        {
+            light->dirty = true;
+        }
+
+        ImGui::Text("Quadratic");
+        if (ImGui::SliderFloat("##AttQuad", &light->attenuation.z, 0.0f, 0.5f))
+        {
+            light->dirty = true;
+        }
+
+        if (ImGui::Button("Short Range (7)"))
+        {
+            light->attenuation = glm::vec3(1.0f, 0.7f, 1.8f);
+            light->dirty = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Medium Range (32)"))
+        {
+            light->attenuation = glm::vec3(1.0f, 0.09f, 0.032f);
+            light->dirty = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Long Range (100)"))
+        {
+            light->attenuation = glm::vec3(1.0f, 0.014f, 0.0007f);
+            light->dirty = true;
+        }
+    }
+
+    // Spotlight cone angles
+    if (light->typeLight == SpotLight)
+    {
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        ImGui::Text("Inner Cutoff Angle");
+        if (ImGui::SliderFloat("##InnerCutoff", &light->cutoffAngle, 0.0f, 90.0f))
+        {
+            if (light->cutoffAngle > light->outerCutoffAngle)
+            {
+                light->outerCutoffAngle = light->cutoffAngle;
+            }
+            light->dirty = true;
+        }
+
+        ImGui::Text("Outer Cutoff Angle");
+        if (ImGui::SliderFloat("##OuterCutoff", &light->outerCutoffAngle, 0.0f, 90.0f))
+        {
+            if (light->outerCutoffAngle < light->cutoffAngle)
+            {
+                light->cutoffAngle = light->outerCutoffAngle;
+            }
+            light->dirty = true;
+        }
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    // Enable/Disable
+    bool enabled = light->enabled;
+    if (ImGui::Checkbox("Enabled", &enabled))
+    {
+        light->enabled = enabled;
+        light->dirty = true;
+    }
+
+    ImGui::Separator();
+
+    if (ImGui::Button("Delete Light", ImVec2(-1, 0)))
+    {
+        DeleteSelectedModel();
+    }
+}
+
 void InspectorPanel::DeleteSelectedModel()
 {
     Model* selected = selectionManager->GetSelected();
@@ -360,11 +534,19 @@ void InspectorPanel::ConvertToCamera(Model* model)
 
 void InspectorPanel::ConvertToLight(Model* model)
 {
-    Camera* newLight = new Camera();
-    newLight->SetPosition(model->position);
+    Light* newLight = new Light(DirectionalLight);
+    newLight->direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+    newLight->ambient = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+    newLight->diffuse = glm::vec4(0.8f, 0.8f, 0.7f, 1.0f);
+    newLight->specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+    newLight->attenuation = glm::vec3(1.0f, 0.09f, 0.032f);
+    newLight->cutoffAngle = 12.5f;
+    newLight->outerCutoffAngle = 17.5f;
+
+    newLight->position = model->position;
     newLight->rotation = model->rotation;
     newLight->scale = glm::vec3{ 1.0f };
-    newLight->SyncRotationToYawPitch();
     newLight->name = model->name + " (Light)";
 
 
@@ -378,7 +560,6 @@ void InspectorPanel::ConvertToLight(Model* model)
         modelList->erase(it);
     }
 
-    // Add new camera
     editorManager->RequestLoadMesh(newLight, "Assets/Models/Light.obj");
     editorManager->ChangeTexture(newLight, "Assets/Textures/Light.png");
 

@@ -5,6 +5,7 @@
 #include "Scene.h"
 #include "Model.h"
 #include "Camera.h"
+#include "Light.h"
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -128,6 +129,10 @@ void ViewportPanel::ApplyGizmosAndTransform()
             {
                 Camera* selectedCamera = dynamic_cast<Camera*>(selectedModel);
                 selectedCamera->SyncRotationToYawPitch();
+            } else if(selectedModel->type == ModelType::LightModel) 
+            {
+                Light* selectedLight = dynamic_cast<Light*>(selectedModel);
+                selectedLight->dirty = true;
             }
         }
     }
