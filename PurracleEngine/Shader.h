@@ -9,8 +9,12 @@ private:
 	std::string LoadShader(const char* aPath);
 	unsigned int LoadVertexShader(const char* aPath);
 	unsigned int LoadFragmentShader(const char* aPath);
+	std::string myVertexPath;
+	std::string myFragmentPath;
+	bool reloaded = false;
 public:
 	Shader(const char* aVertexPath, const char* aFragmentPath);
+	void Reload();
 	unsigned int myShaderProgram;
 	void Initialize(const char* aVertexPath, const char* aFragmentPath);
 	void Use(std::vector<Light*> lights);

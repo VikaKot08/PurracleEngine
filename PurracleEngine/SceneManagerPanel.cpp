@@ -27,6 +27,11 @@ void SceneManagerPanel::Draw()
         editorManager->ChangeShader();
     }
 
+    if (ImGui::Button("Reload Shaders", ImVec2(-1, 0)))
+    {
+        editorManager->ReloadShader();
+    }
+
     ImGui::SeparatorText("Save Scene");
 
     ImGui::Text("Scene Name:");

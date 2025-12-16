@@ -9,6 +9,7 @@ public:
 	ForwardRenderPass();
 	void Execute(Scene& aScene) override;
 	void SwitchShader();
+	void ReloadShader();
 
 private:
 	Texture* myTexture;

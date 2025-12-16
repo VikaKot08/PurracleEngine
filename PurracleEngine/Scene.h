@@ -39,6 +39,7 @@ public:
     FlyingCamera* flyingCamera;
 
     bool switchShader = false;
+    bool reloadShader = false;
 
 private:
     struct GeometryInfo {

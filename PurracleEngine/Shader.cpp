@@ -9,6 +9,8 @@
 
 Shader::Shader(const char* aVertexPath, const char* aFragmentPath) 
 {
+	myFragmentPath = aFragmentPath;
+	myVertexPath = aVertexPath;
 	Initialize(aVertexPath, aFragmentPath);
 }
 
@@ -109,6 +111,21 @@ void Shader::Initialize(const char* aVertexPath, const char* aFragmentPath)
 	glDeleteShader(FragmentShader);
 }
 
+void Shader::Reload()
+{
+	if (myShaderProgram != 0)
+	{
+		glDeleteProgram(myShaderProgram);
+		myShaderProgram = 0;
+	}
+
+	Initialize(myVertexPath.c_str(), myFragmentPath.c_str());
+	reloaded = true;
+	std::cout << "Shader reloaded: "
+		<< myVertexPath << " / "
+		<< myFragmentPath << std::endl;
+}
+
 void Shader::Use(std::vector<Light*> lights)
 {
 	glUseProgram(myShaderProgram);
@@ -118,13 +135,19 @@ void Shader::Use(std::vector<Light*> lights)
 		int numLights = 0;
 		for (Light* light : lights)
 		{
-			if (light->dirty)
+			if (reloaded) 
+			{
+				SetLight(numLights, *light);
+				light->dirty = false;
+			}
+			else if (light->dirty)
 			{
 				SetLight(numLights, *light);
 				light->dirty = false;
 			}
 			numLights++;
 		}
+		reloaded = false;
 		glUniform1i(glGetUniformLocation(myShaderProgram, "numLights"), numLights);
 	}
 }

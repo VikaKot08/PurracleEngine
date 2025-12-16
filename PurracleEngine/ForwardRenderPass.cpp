@@ -16,6 +16,13 @@ void ForwardRenderPass::Execute(Scene& aScene)
 		SwitchShader();
 		aScene.switchShader = false;
 	}
+
+	if (aScene.reloadShader)
+	{
+		ReloadShader();
+		aScene.reloadShader = false;
+	}
+
 	myShader->Use(aScene.GetLight());
 
 	glm::mat4 view = aScene.GetCamera()->GetView();
@@ -43,6 +50,12 @@ void ForwardRenderPass::SwitchShader()
 	{
 		myShader = myPhongShader;
 	}
+}
+
+void ForwardRenderPass::ReloadShader()
+{
+	myPhongShader->Reload();
+	mySimpleShader->Reload();
 }
 
 
