@@ -26,6 +26,7 @@ private:
     bool showPopup;
     std::string popupTitle;
     std::string popupMessage;
+    bool usePhong = true;
 
     void SaveCurrentScene(const std::string& sceneName);
     void LoadSelectedScene(const std::string& sceneName);

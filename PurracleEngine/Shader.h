@@ -20,5 +20,6 @@ public:
 	void SetInt(int aInt, const std::string& aName);
 	void SetLight(int index, const Light& light);
 	void SetEyePosition(glm::vec3 aPosition);
+	bool useLight = true;
 };
 

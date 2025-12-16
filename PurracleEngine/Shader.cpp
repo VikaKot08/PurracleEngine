@@ -112,17 +112,21 @@ void Shader::Initialize(const char* aVertexPath, const char* aFragmentPath)
 void Shader::Use(std::vector<Light*> lights)
 {
 	glUseProgram(myShaderProgram);
-	int numLights = 0;
-	for (Light* light : lights) 
+
+	if(useLight)
 	{
-		if(light->dirty)
+		int numLights = 0;
+		for (Light* light : lights)
 		{
-			SetLight(numLights, *light);
-			light->dirty = false;
+			if (light->dirty)
+			{
+				SetLight(numLights, *light);
+				light->dirty = false;
+			}
+			numLights++;
 		}
-		numLights++;
+		glUniform1i(glGetUniformLocation(myShaderProgram, "numLights"), numLights);
 	}
-	glUniform1i(glGetUniformLocation(myShaderProgram, "numLights"), numLights);
 }
 
 void Shader::EndUse()

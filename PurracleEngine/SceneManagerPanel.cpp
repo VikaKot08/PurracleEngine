@@ -20,6 +20,13 @@ void SceneManagerPanel::Draw()
 {
     ImGui::Begin("Scene Manager");
 
+    ImGui::SeparatorText("Global Settings");
+
+    if (ImGui::Checkbox("Use Phong Shader", &usePhong))
+    {
+        editorManager->ChangeShader();
+    }
+
     ImGui::SeparatorText("Save Scene");
 
     ImGui::Text("Scene Name:");

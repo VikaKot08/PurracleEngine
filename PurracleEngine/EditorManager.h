@@ -22,6 +22,7 @@ public:
 
 	void RequestLoadMesh(Model* aModel, const std::string& meshPath);
 	void SetMeshManager(MeshManager* meshManager);
+	void ChangeShader();
 
 	void Update();
 

@@ -43,8 +43,11 @@ void Model::Render(Shader* myShader)
     myTexture->Bind(0);
     myShader->SetInt(0, "myTexture");
 
-    myTexture->Bind(1);
-    myShader->SetInt(1, "specularMap");
+    if(myShader->useLight)
+    {
+        myTexture->Bind(1);
+        myShader->SetInt(1, "specularMap");
+    }
 
     if (meshes)
     {

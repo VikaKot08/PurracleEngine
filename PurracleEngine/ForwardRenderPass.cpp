@@ -2,11 +2,20 @@
 
 ForwardRenderPass::ForwardRenderPass()
 {
-	myShader = new Shader("Assets/Shaders/PhongVertex.glsl", "Assets/Shaders/PhongFragmentMultiple.glsl");
+	myPhongShader = new Shader("Assets/Shaders/PhongVertex.glsl", "Assets/Shaders/PhongFragmentMultiple.glsl");
+	myPhongShader->useLight = true;
+	mySimpleShader = new Shader("Assets/Shaders/VertexShader.glsl", "Assets/Shaders/FragmentShader.glsl");
+	mySimpleShader->useLight = false;
+	myShader = myPhongShader;
 }
 
 void ForwardRenderPass::Execute(Scene& aScene) 
 {
+	if(aScene.switchShader)
+	{
+		SwitchShader();
+		aScene.switchShader = false;
+	}
 	myShader->Use(aScene.GetLight());
 
 	glm::mat4 view = aScene.GetCamera()->GetView();
@@ -22,6 +31,18 @@ void ForwardRenderPass::Execute(Scene& aScene)
 	}
 
 	myShader->EndUse();
+}
+
+void ForwardRenderPass::SwitchShader()
+{
+	if(myShader == myPhongShader)
+	{
+		myShader = mySimpleShader;
+	}
+	else 
+	{
+		myShader = myPhongShader;
+	}
 }
 
 

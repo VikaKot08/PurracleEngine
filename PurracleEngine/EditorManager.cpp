@@ -20,6 +20,11 @@ EditorManager::~EditorManager()
 {
 }
 
+void EditorManager::ChangeShader()
+{
+	scene->switchShader = true;
+}
+
 void EditorManager::RequestSaveScene(const std::string& filepath)
 {
 	std::cout << "EditorManager: Saving scene to: " << filepath << std::endl;
