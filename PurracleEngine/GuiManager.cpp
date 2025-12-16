@@ -283,6 +283,7 @@ void GuiManager::ProcessMessage(Message* aMessage)
                 if (modelList && !modelList->empty())
                 {
                     selectionManager->Select(modelList->at(0));
+                    assetBrowser->VerifyNames(*modelList);
                 }
                 else
                 {
