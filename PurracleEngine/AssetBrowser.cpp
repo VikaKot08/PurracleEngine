@@ -1,4 +1,5 @@
 #include "AssetBrowser.h"
+#include "Model.h"
 #include <filesystem>
 #include <algorithm>
 
@@ -129,4 +130,13 @@ int AssetBrowser::FindTextureIndex(const std::string& texturePath) const
             return static_cast<int>(i);
     }
     return 0;
+}
+
+void AssetBrowser::VerifyNames(std::vector<Model*> models)
+{
+    for (Model* model : models)
+    {
+        model->meshIndex = FindMeshIndex(model->path);
+        model->textureIndex = FindTextureIndex(model->myTexture->path);
+    }
 }

@@ -279,6 +279,8 @@ int main()
         }
     }
 
+    gui->VerifyAtStart();
+
     while (!glfwWindowShouldClose(window))
     {
         if (!glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT)) {

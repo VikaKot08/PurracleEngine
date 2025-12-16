@@ -30,6 +30,7 @@ void HierarchyPanel::Draw()
     if (ImGui::Button("Refresh Assets", ImVec2(-1, 0)))
     {
         assetBrowser->RefreshAssets();
+        assetBrowser->VerifyNames(*modelList);
     }
 
     ImGui::Separator();

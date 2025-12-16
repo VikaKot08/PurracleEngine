@@ -1,6 +1,8 @@
 #include "SceneSerializer.h"
 #include "Scene.h"
 #include "Model.h"
+
+#include "Light.h"
 #include "Camera.h"
 #include "MeshManager.h"
 #include <iostream>
@@ -68,9 +70,9 @@ bool SceneSerializer::SaveScene(Scene* scene, const std::string& filepath)
     // Get all renderables
     std::vector<Renderable*> renderables = scene->GetRenderables();
 
-    // Separate models and cameras
     std::vector<Model*> models;
     std::vector<Camera*> cameras;
+    std::vector<Light*> lights;
 
     for (Renderable* r : renderables)
     {
@@ -82,6 +84,11 @@ bool SceneSerializer::SaveScene(Scene* scene, const std::string& filepath)
                 Camera* cam = dynamic_cast<Camera*>(model);
                 if (cam) cameras.push_back(cam);
             }
+            else if (model->type == ModelType::LightModel)
+            {
+                Light* light = dynamic_cast<Light*>(model);
+                if (light) lights.push_back(light);
+            }
             else
             {
                 models.push_back(model);
@@ -89,6 +96,7 @@ bool SceneSerializer::SaveScene(Scene* scene, const std::string& filepath)
         }
     }
 
+    //Write model count
     uint32_t modelCount = static_cast<uint32_t>(models.size());
     file.write((const char*)(&modelCount), sizeof(uint32_t));
 
@@ -148,6 +156,45 @@ bool SceneSerializer::SaveScene(Scene* scene, const std::string& filepath)
         if (cam->parent)
         {
             Model* parentModel = dynamic_cast<Model*>(cam->parent);
+            if (parentModel)
+            {
+                parentIndex = FindModelIndex(parentModel, models);
+            }
+        }
+        file.write((const char*)(&parentIndex), sizeof(int32_t));
+    }
+
+
+    // Write light count
+    uint32_t lightCount = static_cast<uint32_t>(lights.size());
+    file.write((const char*)(&lightCount), sizeof(uint32_t));
+
+    // Write lights
+    for (Light* light : lights)
+    {
+        WriteString(file, light->name);
+
+        file.write((const char*)(&light->position), sizeof(glm::vec3));
+        file.write((const char*)(&light->rotation), sizeof(glm::vec3));
+
+        int32_t lightType = static_cast<int32_t>(light->typeLight);
+        file.write((const char*)(&lightType), sizeof(int32_t));
+
+        file.write((const char*)(&light->direction), sizeof(glm::vec3));
+        file.write((const char*)(&light->ambient), sizeof(glm::vec4));
+        file.write((const char*)(&light->diffuse), sizeof(glm::vec4));
+        file.write((const char*)(&light->specular), sizeof(glm::vec4));
+        file.write((const char*)(&light->attenuation), sizeof(glm::vec3));
+        file.write((const char*)(&light->cutoffAngle), sizeof(float));
+        file.write((const char*)(&light->outerCutoffAngle), sizeof(float));
+        file.write((const char*)(&light->enabled), sizeof(bool));
+        file.write((const char*)(&light->isActive), sizeof(bool));
+
+        // Parent index
+        int32_t parentIndex = -1;
+        if (light->parent)
+        {
+            Model* parentModel = dynamic_cast<Model*>(light->parent);
             if (parentModel)
             {
                 parentIndex = FindModelIndex(parentModel, models);
@@ -319,6 +366,81 @@ bool SceneSerializer::LoadScene(Scene* scene, const std::string& filepath, std::
         }
     }
 
+    // Read light count
+    uint32_t lightCount = 0;
+    file.read((char*)(&lightCount), sizeof(uint32_t));
+
+    if (lightCount > 100)
+    {
+        std::cerr << "SceneSerializer: Invalid light count: " << lightCount << std::endl;
+        file.close();
+        return false;
+    }
+
+    std::vector<Light*> loadedLights;
+    std::vector<int32_t> lightParentIndices;
+
+    // Read lights
+    for (uint32_t i = 0; i < lightCount; ++i)
+    {
+        std::string name = ReadString(file);
+
+        glm::vec3 position, rotation, direction, attenuation;
+        glm::vec4 ambient, diffuse, specular;
+        int32_t lightType;
+        float cutoffAngle, outerCutoffAngle;
+        bool enabled, isActive;
+        int32_t parentIndex;
+
+        file.read((char*)(&position), sizeof(glm::vec3));
+        file.read((char*)(&rotation), sizeof(glm::vec3));
+        file.read((char*)(&lightType), sizeof(int32_t));
+        file.read((char*)(&direction), sizeof(glm::vec3));
+        file.read((char*)(&ambient), sizeof(glm::vec4));
+        file.read((char*)(&diffuse), sizeof(glm::vec4));
+        file.read((char*)(&specular), sizeof(glm::vec4));
+        file.read((char*)(&attenuation), sizeof(glm::vec3));
+        file.read((char*)(&cutoffAngle), sizeof(float));
+        file.read((char*)(&outerCutoffAngle), sizeof(float));
+        file.read((char*)(&enabled), sizeof(bool));
+        file.read((char*)(&isActive), sizeof(bool));
+        file.read((char*)(&parentIndex), sizeof(int32_t));
+
+        Light* light = new Light(static_cast<LightType>(lightType));
+        light->name = name;
+        light->position = position;
+        light->rotation = rotation;
+        light->direction = direction;
+        light->ambient = ambient;
+        light->diffuse = diffuse;
+        light->specular = specular;
+        light->attenuation = attenuation;
+        light->cutoffAngle = cutoffAngle;
+        light->outerCutoffAngle = outerCutoffAngle;
+        light->enabled = enabled;
+        light->isActive = isActive;
+        light->dirty = true;
+
+        if(light->typeLight == LightType::DirectionalLight)
+        {
+            light->meshes = MeshManager::Get()->LoadMeshes("Assets/Models/Light.obj", 0);
+            light->myTexture = std::make_unique<Texture>("Assets/Textures/Light.png");
+        } else if (light->typeLight == LightType::PointLight)
+        {
+            light->meshes = MeshManager::Get()->LoadMeshes("Assets/Models/PointLight.obj", 0);
+            light->myTexture = std::make_unique<Texture>("Assets/Textures/PointLight.png");
+        } else 
+        {
+            light->meshes = MeshManager::Get()->LoadMeshes("Assets/Models/Light.obj", 0);
+            light->myTexture = std::make_unique<Texture>("Assets/Textures/Light.png");
+        }
+
+        loadedLights.push_back(light);
+        lightParentIndices.push_back(parentIndex);
+        modelList->push_back(light);
+        scene->AddRenderable(light);
+    }
+
     file.close();
 
     // Restore parent relationships for models
@@ -336,6 +458,15 @@ bool SceneSerializer::LoadScene(Scene* scene, const std::string& filepath, std::
         if (cameraParentIndices[i] >= 0 && cameraParentIndices[i] < static_cast<int32_t>(loadedModels.size()))
         {
             loadedCameras[i]->SetParent(loadedModels[cameraParentIndices[i]]);
+        }
+    }
+
+    // Restore parent relationships for lights
+    for (size_t i = 0; i < loadedLights.size(); ++i)
+    {
+        if (lightParentIndices[i] >= 0 && lightParentIndices[i] < static_cast<int32_t>(loadedModels.size()))
+        {
+            loadedLights[i]->SetParent(loadedModels[lightParentIndices[i]]);
         }
     }
 

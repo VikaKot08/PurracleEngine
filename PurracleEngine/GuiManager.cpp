@@ -220,6 +220,11 @@ void GuiManager::Update(GLFWwindow* aWindow)
     }
 }
 
+void GuiManager::VerifyAtStart()
+{
+    assetBrowser->VerifyNames(*modelList);
+}
+
 void GuiManager::DrawDockSpace()
 {
     ImGuiViewport* viewport = ImGui::GetMainViewport();

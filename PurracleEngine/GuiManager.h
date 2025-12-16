@@ -34,6 +34,7 @@ public:
     float GetViewportHeight();
     float GetViewportWidth();
     Scene* GetScene();
+    void VerifyAtStart();
 
 protected:
     void ProcessMessage(Message* aMessage) override;

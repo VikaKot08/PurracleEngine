@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 
+class Model;
+
 class AssetBrowser
 {
 public:
@@ -13,6 +15,7 @@ public:
     const std::vector<std::string>& GetTextures() const { return availableTextures; }
     const std::vector<const char*>& GetMeshNames() const { return meshNames; }
     const std::vector<const char*>& GetTextureNames() const { return textureNames; }
+    void VerifyNames(std::vector<Model*> models);
 
     int FindMeshIndex(const std::string& meshPath) const;
     int FindTextureIndex(const std::string& texturePath) const;

@@ -152,7 +152,6 @@ void InspectorPanel::DrawNormalModelControls(Model* model)
         UpdateSelectedModelTransform();
     }
 
-    model->meshIndex = assetBrowser->FindMeshIndex(model->path);
 
     ImGui::Spacing();
     ImGui::SeparatorText("Mesh");
@@ -164,7 +163,6 @@ void InspectorPanel::DrawNormalModelControls(Model* model)
         editorManager->RequestLoadMesh(model, assetBrowser->GetMeshes()[model->meshIndex]);
     }
 
-    model->textureIndex = assetBrowser->FindTextureIndex(model->pathTex);
 
     ImGui::Spacing();
     ImGui::SeparatorText("Texture");
