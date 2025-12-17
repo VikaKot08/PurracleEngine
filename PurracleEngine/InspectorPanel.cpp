@@ -125,6 +125,7 @@ void InspectorPanel::DrawNormalModelControls(Model* model)
     }
 
     rotationVecInput = model->rotation;
+    rotationVec = model->rotation;
     ImGui::Text("Rotation (degrees)");
     if (ImGui::InputFloat3("##Rotation", glm::value_ptr(rotationVecInput)))
     {

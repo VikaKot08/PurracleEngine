@@ -20,6 +20,8 @@ void ForwardRenderPass::Execute(Scene& aScene)
 	if (aScene.reloadShader)
 	{
 		ReloadShader();
+		SwitchShader();
+		SwitchShader();
 		aScene.reloadShader = false;
 	}
 
