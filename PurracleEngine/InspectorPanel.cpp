@@ -60,6 +60,8 @@ void InspectorPanel::Draw()
     }
 
     ImGui::End();
+
+    DrawPopup();
 }
 
 void InspectorPanel::OnSelectionChanged(Model* newSelection)
@@ -562,6 +564,12 @@ void InspectorPanel::ConvertToCamera(Model* model)
 
 void InspectorPanel::ConvertToLight(Model* model)
 {
+    if (CheckNumOfLights() >= 8)
+    {
+        ShowPopup("Number of lights", "You cannot add another light as the amount would exceed the maximum.");
+        return;
+    }
+
     Light* newLight = new Light(DirectionalLight);
     newLight->direction = glm::vec3(0.0f, 0.0f, 1.0f);
     newLight->ambient = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
@@ -603,4 +611,49 @@ float InspectorPanel::WrapAngle(float angle)
     while (angle >= 360.0f) angle -= 360.0f;
     while (angle < 0.0f) angle += 360.0f;
     return angle;
+}
+
+int InspectorPanel::CheckNumOfLights()
+{
+    int numOfLights = 0;
+    for(Model* model : *modelList)
+    {
+        if(model->type == ModelType::LightModel)
+        {
+            numOfLights++;
+        }
+    }
+    return numOfLights;
+}
+
+void InspectorPanel::ShowPopup(const std::string& title, const std::string& message)
+{
+    popupTitle = title;
+    popupMessage = message;
+    showPopup = true;
+}
+
+void InspectorPanel::DrawPopup()
+{
+    if (showPopup)
+    {
+        ImGui::OpenPopup(popupTitle.c_str());
+        showPopup = false;
+    }
+
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Appearing);
+
+    if (ImGui::BeginPopupModal(popupTitle.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::TextWrapped("%s", popupMessage.c_str());
+        ImGui::Separator();
+
+        if (ImGui::Button("OK", ImVec2(120, 0)))
+        {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
 }

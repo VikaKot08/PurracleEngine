@@ -42,6 +42,13 @@ private:
     void DeleteSelectedModel();
     void ConvertToCamera(Model* model);
     void ConvertToLight(Model* model);
+    int CheckNumOfLights();
+
+    void ShowPopup(const std::string& title, const std::string& message);
+    void DrawPopup();
+    bool showPopup;
+    std::string popupTitle;
+    std::string popupMessage;
 
     static float WrapAngle(float angle);
 };
